@@ -342,8 +342,10 @@ function loadGitConfig(cb) {
 function saveGitConfig(cfg) {
   gitConfig = cfg;
   if (isServerMode) {
-    fetch(API_BASE + '/api/git', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg) })
-      .catch(function(e){});
+    var headers = { 'Content-Type': 'application/json' };
+    if (adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
+    fetch(API_BASE + '/api/git', { method: 'POST', headers: headers, body: JSON.stringify(cfg) })
+      .catch(function(e){ showToast('保存Git配置失败: ' + e.message, 'error'); });
   }
   localStorage.setItem('deploy_manager_git', JSON.stringify(cfg));
 }
@@ -1097,8 +1099,29 @@ function crc32(data) {
   return (crc ^ 0xFFFFFFFF) >>> 0;
 }
 
-// ========== GitHub Integration ==========
+// ========== GitHub / GitLab Integration ==========
+var adminToken = sessionStorage.getItem('admin_token') || '';
+
 function toggleSettings() {
+  if (isServerMode && !adminToken) {
+    var pw = prompt('请输入管理员密码：');
+    if (!pw) return;
+    fetch(API_BASE + '/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pw }) })
+      .then(function(r) { return r.json(); })
+      .then(function(resp) {
+        if (resp.ok) {
+          adminToken = resp.token;
+          sessionStorage.setItem('admin_token', adminToken);
+          showSettings();
+        } else {
+          showToast('密码错误', 'error');
+        }
+      }).catch(function(e) { showToast('登录失败: ' + e.message, 'error'); });
+  } else {
+    showSettings();
+  }
+}
+function showSettings() {
   document.getElementById('settingsModal').classList.add('show');
   document.getElementById('gitProvider').value = gitConfig.provider || 'github';
   document.getElementById('gitlabHost').value = (gitConfig.gitlab && gitConfig.gitlab.host) || '';
