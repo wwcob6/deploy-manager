@@ -1,6 +1,23 @@
 # 投产需求清单管理工具
 
-内网部署的投产需求管理工具，支持多人协作、GitHub/GitLab 分支管理、SQL 脚本下载。
+内网部署的投产需求管理工具，支持多人协作、GitHub/GitLab 分支管理、SQL 脚本下载、管理员认证。
+
+## 架构
+
+```
+用户浏览器 ──→ nginx (:80) ────→ index.html (前端)
+                  │
+            /api/* proxy_pass
+                  │
+                  └──→ Windows Node.js (:3000) ←── 你的本地机器
+                       ├── start.js
+                       ├── data.json          (共享业务数据)
+                       └── git-config.json    (Git Token，管理员配置)
+```
+
+- **前端**：纯静态 HTML，部署在 nginx 服务器，所有用户通过浏览器访问
+- **后端**：Node.js，运行在你的 Windows 机器上，处理数据读写和版本控制
+- **Git Token**：存在服务端 `git-config.json`，管理员配一次，全员可用
 
 ## 功能
 
@@ -12,80 +29,57 @@
 - **SQL 管理**：支持查询/执行/回退三段式 SQL，单个下载或打包下载 ZIP
 - **版本冲突检测**：多人同时编辑时，后保存者会收到冲突提示
 - **搜索过滤**：按需求名称/编号实时过滤
+- **管理员认证**：配置 Git Token 需要密码，普通用户只读使用
 
 ## 文件说明
 
 ```
 ├── index.html    # 前端页面（内置全部 CSS/JS，无外部依赖）
-├── start.js      # Node.js 后端（推荐）
-├── start.py      # Python 后端（Python 3.4+ 可用）
+├── start.js      # Node.js 后端
+├── start.py      # Python 后端
+├── nginx.conf    # nginx 配置示例
 └── README.md
 ```
 
-## 部署方式
+## 部署
 
-### 方式一：Node.js（推荐）
+### 第一步：启动后端（你的 Windows 机器）
 
-```bash
-# 1. 安装 Node.js（如已安装跳过）
-# 2. 启动服务
+```cmd
+:: 方式一：默认密码
 node start.js
-# 3. 访问 http://localhost:3000
+
+:: 方式二：自定义管理员密码
+set ADMIN_PASSWORD=你的密码
+node start.js
+
+:: 启动后输出:
+:: http://localhost:3000
 ```
 
-### 方式二：Python
+### 第二步：部署前端（nginx 服务器）
 
-```bash
-# Python 3.4+ 自带 http 模块，无需安装任何库
-python start.py
-# 访问 http://localhost:3000
-```
+1. 把 `index.html` 放到 nginx 的 html 目录
+2. 把 `nginx.conf` 中的 `你的Windows内网IP` 改为 Windows 的实际内网 IP
+3. reload nginx
 
-### 方式三：nginx + 后端
+### 第三步：配置 Git Token
 
-```
-# nginx 配置
-server {
-    listen 80;
-    location / {
-        root /path/to/project;
-        index index.html;
-    }
-    location /api/ {
-        proxy_pass http://127.0.0.1:3000;
-    }
-}
-```
-
-修改 `index.html` 第 290 行指向后端地址：
-```js
-var API_BASE = 'http://后端IP:3000';  // 前后端分离时填写
-```
-
-## 使用说明
-
-1. **新建年份**：左侧菜单点 [+] 按钮
-2. **新建投产窗口**：展开年份 → 点击「+ 新建投产窗口」→ 输入日期（格式：20260531）
-3. **新建需求**：点击投产窗口 → 「+ 新建需求」→ 填写需求信息
-4. **获取 Git 项目列表**：编辑需求 → 点「获取项目列表」→ 选择项目 → 分支自动加载
-5. **下载 SQL**：展开需求行 → 点「下载」下载单个 SQL，或顶部「下载全部SQL」打包下载 ZIP
-6. **搜索**：在需求列表上方搜索框输入关键词过滤
-7. **延期**：编辑需求 → 将状态改为「延期」→ 延期需求在顶部汇总展示
-
-## Git 仓库配置
-
-点击左侧菜单底部「⚙ 仓库设置」：
-
-| 配置项 | GitHub | GitLab（内网） |
-|--------|--------|---------------|
-| 仓库类型 | 选 GitHub | 选 GitLab |
-| GitLab 地址 | 无需填写 | `https://gitlab.yourcompany.com` |
-| Token | Personal Access Token | Personal Access Token |
-
-Token 仅存储在浏览器 localStorage，不会上传到服务器。
+管理员打开页面 → 点左下角「仓库设置」→ 输入管理员密码（默认 `admin123`）→ 配置 Token
 
 ## 数据存储
 
-- **共享模式**：通过后端服务访问时，数据存储在服务端 `data.json`（自动创建），所有用户共享
-- **本地模式**：直接打开 HTML 文件时，数据存储在浏览器 localStorage，仅自己可见
-- 标题旁会显示「共享」或「本地」标识当前模式
+| 文件 | 位置 | 内容 |
+|------|------|------|
+| `data.json` | Windows | 投产窗口、需求数据，带版本号 |
+| `git-config.json` | Windows | Git Token，管理员可写 |
+
+## 管理员 vs 普通用户
+
+| 操作 | 普通用户 | 管理员 |
+|------|---------|--------|
+| 查看需求、统计面板 | ✓ | ✓ |
+| 新建/编辑/删除需求 | ✓ | ✓ |
+| 搜索、下载 SQL | ✓ | ✓ |
+| 获取 Git 分支列表 | ✓（Token 自动加载） | ✓ |
+| 修改 Git Token | ✗ | ✓（需输密码） |
