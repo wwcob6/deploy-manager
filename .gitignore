@@ -1,5 +1,8 @@
 data.json
 data.json.tmp
+git-config.json
+git-config.json.tmp
+*.log
 node_modules
 .DS_Store
 .claude

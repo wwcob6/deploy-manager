@@ -294,7 +294,7 @@ var gitConfig = { provider: 'github', gitlab: { host: '', token: '' }, github: {
 
 function loadData(callback) {
   if (isServerMode) {
-    fetch(API_BASE + '/api/data').then(function(r) { return r.json(); }).then(function(d) {
+    return fetch(API_BASE + '/api/data').then(function(r) { return r.json(); }).then(function(d) {
       dataVersion = d._version || 0;
       data = d;
       if (callback) callback();
@@ -309,6 +309,7 @@ function loadData(callback) {
     if (raw) data = JSON.parse(raw);
     if (callback) callback();
     initUI();
+    return Promise.resolve(data);
   }
 }
 
@@ -316,27 +317,32 @@ function saveData() {
   if (isServerMode) {
     var payload = JSON.parse(JSON.stringify(data));
     payload._version = dataVersion;
-    fetch(API_BASE + '/api/data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      .then(function(r) { return r.json(); })
+    return fetch(API_BASE + '/api/data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function(r) { return r.json().then(function(body) { body.httpOk = r.ok; return body; }); })
       .then(function(resp) {
-        if (resp.ok) dataVersion = resp._version;
-        else if (resp.conflict) showToast(resp.message, 'error');
+        if (resp.ok) { dataVersion = resp._version; return true; }
+        if (resp.conflict) { showToast(resp.message, 'error'); loadData(); }
+        else showToast(resp.message || '保存失败', 'error');
+        return false;
       })
-      .catch(function(e) { showToast('保存失败: ' + e.message, 'error'); });
+      .catch(function(e) { showToast('保存失败: ' + e.message, 'error'); return false; });
   } else {
     localStorage.setItem('deploy_manager_data', JSON.stringify(data));
+    return Promise.resolve(true);
   }
 }
 
 function loadGitConfig(cb) {
   if (isServerMode) {
-    fetch(API_BASE + '/api/git').then(function(r){return r.json()}).then(function(cfg){
+    return fetch(API_BASE + '/api/git').then(function(r){return r.json()}).then(function(cfg){
       gitConfig = cfg || { provider: 'github', gitlab: { host: '', token: '' }, github: { owner: '', repo: '', token: '' } };
       if (cb) cb();
+      return gitConfig;
     }).catch(function(e){ if (cb) cb(); });
   } else {
     try { var r = localStorage.getItem('deploy_manager_git'); if (r) gitConfig = JSON.parse(r); } catch(e) {}
     if (cb) cb();
+    return Promise.resolve(gitConfig);
   }
 }
 function saveGitConfig(cfg) {
@@ -344,10 +350,13 @@ function saveGitConfig(cfg) {
   if (isServerMode) {
     var headers = { 'Content-Type': 'application/json' };
     if (adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
-    fetch(API_BASE + '/api/git', { method: 'POST', headers: headers, body: JSON.stringify(cfg) })
-      .catch(function(e){ showToast('保存Git配置失败: ' + e.message, 'error'); });
+    return fetch(API_BASE + '/api/git', { method: 'POST', headers: headers, body: JSON.stringify(cfg) })
+      .then(function(r) { return r.json().then(function(body) { if (!r.ok || !body.ok) throw new Error(body.message || ('HTTP ' + r.status)); return body; }); })
+      .then(function() { return loadGitConfig(); })
+      .catch(function(e){ showToast('保存Git配置失败: ' + e.message, 'error'); return false; });
   }
   localStorage.setItem('deploy_manager_git', JSON.stringify(cfg));
+  return Promise.resolve(true);
 }
 
 // ========== State ==========
@@ -427,7 +436,7 @@ function selectWindow(windowId) {
 }
 
 // ========== Year CRUD ==========
-function addYear() {
+async function addYear() {
   var y = prompt('请输入新年份（如 2026）：');
   if (!y) return;
   var num = parseInt(y);
@@ -436,11 +445,11 @@ function addYear() {
   data.years.push(num);
   expandedYears[num] = true;
   currentYear = num;
-  saveData();
+  if (!await saveData()) return;
   renderSidebar();
   showToast('年份已添加', 'success');
 }
-function editYear(y) {
+async function editYear(y) {
   var ny = prompt('修改年份：', y);
   if (!ny || ny == y) return;
   var num = parseInt(ny);
@@ -451,19 +460,19 @@ function editYear(y) {
   if (currentYear === y) currentYear = num;
   expandedYears[num] = expandedYears[y];
   delete expandedYears[y];
-  saveData();
+  if (!await saveData()) return;
   renderSidebar();
   renderMain();
   showToast('年份已更新', 'success');
 }
-function deleteYear(y) {
+async function deleteYear(y) {
   if (!confirm('确定删除 ' + y + ' 年及其所有投产窗口和需求吗？此操作不可恢复。')) return;
   data.years = data.years.filter(function(v) { return v !== y; });
   data.windows = data.windows.filter(function(w) { return w.year !== y; });
   delete expandedYears[y];
   if (currentYear === y) currentYear = null;
   if (selectedWindowId && !data.windows.find(function(w) { return w.id === selectedWindowId; })) selectedWindowId = null;
-  saveData();
+  if (!await saveData()) return;
   renderSidebar();
   renderMain();
   showToast('年份已删除', 'success');
@@ -484,7 +493,7 @@ function openWindowModal(editId) {
   }
 }
 function closeWindowModal() { document.getElementById('windowModal').classList.remove('show'); editingWindowId = null; }
-function saveWindow() {
+async function saveWindow() {
   var date = document.getElementById('winDate').value.trim();
   if (!date) { showToast('请填写日期', 'error'); return; }
   if (!/^\d{8}$/.test(date)) { showToast('日期格式错误，请输入如 20260531', 'error'); return; }
@@ -498,17 +507,17 @@ function saveWindow() {
     expandedYears[currentYear] = true;
     if (!selectedWindowId) selectedWindowId = newWin.id;
   }
-  saveData();
+  if (!await saveData()) return;
   closeWindowModal();
   renderSidebar();
   renderMain();
   showToast('投产窗口已保存', 'success');
 }
-function deleteWindow(id) {
+async function deleteWindow(id) {
   if (!confirm('确定删除此投产窗口及其所有需求吗？此操作不可恢复。')) return;
   data.windows = data.windows.filter(function(w) { return w.id !== id; });
   if (selectedWindowId === id) selectedWindowId = data.windows.length > 0 ? data.windows[data.windows.length - 1].id : null;
-  saveData();
+  if (!await saveData()) return;
   renderSidebar();
   renderMain();
   showToast('投产窗口已删除', 'success');
@@ -893,7 +902,7 @@ function collectReqForm() {
   };
 }
 
-function saveRequirement() {
+async function saveRequirement() {
   var req = collectReqForm();
   if (!req) return;
   var w = data.windows.find(function(v) { return v.id === editingReqWindowId; });
@@ -905,7 +914,7 @@ function saveRequirement() {
   } else {
     w.requirements.push(req);
   }
-  saveData();
+  if (!await saveData()) return;
   closeReqModal();
   renderMain();
   showToast('需求已保存', 'success');
@@ -917,23 +926,23 @@ function closeReqModal() {
   moduleCounter = 0; sqlCounter = 0; branchLoading = {};
 }
 
-function deleteRequirement(windowId, reqId) {
+async function deleteRequirement(windowId, reqId) {
   if (!confirm('确定删除此需求吗？')) return;
   var w = data.windows.find(function(v) { return v.id === windowId; });
   if (!w) return;
   w.requirements = (w.requirements || []).filter(function(r) { return r.id !== reqId; });
-  saveData();
+  if (!await saveData()) return;
   renderMain();
   showToast('需求已删除', 'success');
 }
 
-function restoreRequirement(windowId, reqId) {
+async function restoreRequirement(windowId, reqId) {
   var w = data.windows.find(function(v) { return v.id === windowId; });
   if (!w) return;
   var req = (w.requirements || []).find(function(r) { return r.id === reqId; });
   if (!req) return;
   req.status = 'normal';
-  saveData();
+  if (!await saveData()) return;
   renderMain();
   showToast('需求已恢复为正常上线', 'success');
 }
@@ -1125,14 +1134,16 @@ function showSettings() {
   document.getElementById('settingsModal').classList.add('show');
   document.getElementById('gitProvider').value = gitConfig.provider || 'github';
   document.getElementById('gitlabHost').value = (gitConfig.gitlab && gitConfig.gitlab.host) || '';
-  document.getElementById('gitToken').value = gitConfig.github.token || gitConfig.gitlab.token || '';
+  var tokenInput = document.getElementById('gitToken');
+  tokenInput.value = '';
+  tokenInput.placeholder = (gitConfig.github && gitConfig.github.hasToken) || (gitConfig.gitlab && gitConfig.gitlab.hasToken) ? '已配置，留空不修改' : '输入Token';
   toggleGitFields();
 }
 function toggleGitFields() {
   document.getElementById('gitlabFields').style.display = document.getElementById('gitProvider').value === 'gitlab' ? '' : 'none';
 }
 function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
-function saveSettings() {
+async function saveSettings() {
   var provider = document.getElementById('gitProvider').value;
   var token = document.getElementById('gitToken').value.trim();
   if (!gitConfig.gitlab) gitConfig.gitlab = { host: '', token: '' };
@@ -1141,7 +1152,8 @@ function saveSettings() {
   if (provider === 'gitlab') gitConfig.gitlab.host = document.getElementById('gitlabHost').value.trim();
   gitConfig.github.token = token;
   gitConfig.gitlab.token = token;
-  saveGitConfig(gitConfig);
+  var ok = await saveGitConfig(gitConfig);
+  if (!ok) return;
   closeSettings();
   showToast('Git 配置已保存', 'success');
 }
@@ -1149,8 +1161,12 @@ function saveSettings() {
 async function fetchRepos() {
   var provider = gitConfig.provider || 'github';
   var isGithub = provider === 'github';
-  var token = isGithub ? (gitConfig.github && gitConfig.github.token) : (gitConfig.gitlab && gitConfig.gitlab.token);
-  if (!token) { showToast('请先在设置中配置 Token', 'error'); return; }
+  var hasToken = isGithub ? (gitConfig.github && gitConfig.github.hasToken) : (gitConfig.gitlab && gitConfig.gitlab.hasToken);
+  if (isServerMode && !hasToken) { showToast('请先在设置中配置 Token', 'error'); return; }
+  if (!isServerMode) {
+    var token = isGithub ? (gitConfig.github && gitConfig.github.token) : (gitConfig.gitlab && gitConfig.gitlab.token);
+    if (!token) { showToast('请先在设置中配置 Token', 'error'); return; }
+  }
   if (!isGithub && (!gitConfig.gitlab || !gitConfig.gitlab.host)) { showToast('请先在设置中配置GitLab地址', 'error'); return; }
 
   var statusEl = document.getElementById('repoFetchStatus');
@@ -1159,7 +1175,10 @@ async function fetchRepos() {
     var allRepos = [], page = 1;
     while (page <= 10) {
       var url, resp;
-      if (isGithub) {
+      if (isServerMode) {
+        url = API_BASE + '/api/repos?page=' + page;
+        resp = await fetch(url);
+      } else if (isGithub) {
         url = 'https://api.github.com/user/repos?per_page=100&page=' + page + '&sort=updated';
         resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' } });
       } else {
@@ -1167,7 +1186,10 @@ async function fetchRepos() {
         url = host + '/api/v4/projects?membership=true&per_page=100&page=' + page;
         resp = await fetch(url, { headers: { 'PRIVATE-TOKEN': token } });
       }
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      if (!resp.ok) {
+        var errBody = await resp.json().catch(function(){ return {}; });
+        throw new Error(errBody.message || ('HTTP ' + resp.status));
+      }
       var items = await resp.json();
       if (!items.length) break;
       allRepos = allRepos.concat(items);
@@ -1242,6 +1264,15 @@ async function onModuleRepoChange(idx) {
 async function loadBranchesForRepo(repoFull) {
   var provider = gitConfig.provider || 'github';
   var isGithub = provider === 'github';
+  if (isServerMode) {
+    var serverResp = await fetch(API_BASE + '/api/branches?repo=' + encodeURIComponent(repoFull));
+    if (!serverResp.ok) {
+      var serverErr = await serverResp.json().catch(function(){ return {}; });
+      throw new Error(serverErr.message || ('HTTP ' + serverResp.status));
+    }
+    return await serverResp.json();
+  }
+
   var token = isGithub ? (gitConfig.github && gitConfig.github.token) : (gitConfig.gitlab && gitConfig.gitlab.token);
   if (!token) throw new Error('未配置 Token');
 
