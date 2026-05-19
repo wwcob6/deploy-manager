@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>投产需求清单管理工具</title>
+<style>
+:root {
+  --primary: #4f6ef7; --primary-hover: #3b5de7; --danger: #e74c3c; --success: #27ae60; --warning: #f39c12;
+  --bg: #f5f6fa; --sidebar-bg: #2c3e50; --sidebar-text: #ecf0f1; --card-bg: #fff;
+  --border: #dcdfe6; --text: #2c3e50; --text-secondary: #7f8c8d; --radius: 8px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+/* Sidebar */
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; overflow: hidden; }
+.sidebar-header { padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; }
+.sidebar-header h2 { font-size: 16px; font-weight: 600; }
+.sidebar-header .btn-icon { background: rgba(255,255,255,0.15); border: none; color: #fff; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.sidebar-header .btn-icon:hover { background: rgba(255,255,255,0.25); }
+.sidebar-body { flex: 1; overflow-y: auto; padding: 4px 0; }
+
+.year-group { border-bottom: 1px solid rgba(255,255,255,0.06); }
+.year-group-header { padding: 10px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; user-select: none; font-size: 15px; }
+.year-group-header:hover { background: rgba(255,255,255,0.08); }
+.year-group-header .year-label { display: flex; align-items: center; gap: 6px; }
+.year-group-header .arrow { font-size: 10px; transition: transform 0.2s; color: #95a5a6; }
+.year-group-header .arrow.expanded { transform: rotate(90deg); }
+.year-group-header .year-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; }
+.year-group-header:hover .year-actions { opacity: 1; }
+.year-group-header .btn-sm { background: none; border: none; color: #bdc3c7; cursor: pointer; font-size: 12px; padding: 2px 5px; border-radius: 3px; }
+.year-group-header .btn-sm:hover { color: #fff; background: rgba(255,255,255,0.15); }
+
+.window-sublist { display: none; }
+.window-sublist.open { display: block; }
+.window-sublist-item { padding: 8px 16px 8px 36px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; border-left: 3px solid transparent; color: #bdc3c7; }
+.window-sublist-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.window-sublist-item.active { background: rgba(79,110,247,0.25); border-left-color: var(--primary); color: #fff; font-weight: 600; }
+.window-sublist-item .win-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; }
+.window-sublist-item:hover .win-actions { opacity: 1; }
+.window-sublist-item .btn-xs { background: none; border: none; color: #7f8c8d; cursor: pointer; font-size: 11px; padding: 1px 4px; border-radius: 3px; }
+.window-sublist-item .btn-xs:hover { color: #fff; background: rgba(255,255,255,0.15); }
+.add-window-btn { padding: 6px 16px 6px 36px; font-size: 12px; color: #95a5a6; cursor: pointer; }
+.add-window-btn:hover { color: #fff; }
+
+/* Main */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.main-header { padding: 14px 24px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.main-header h1 { font-size: 18px; font-weight: 600; }
+.main-header .header-actions { display: flex; gap: 8px; align-items: center; }
+.main-content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+/* Buttons */
+.btn { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-size: 14px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-danger { color: var(--danger); }
+.btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-success { color: var(--success); }
+.btn-success:hover { background: var(--success); color: #fff; border-color: var(--success); }
+.btn-warning { color: var(--warning); }
+.btn-warning:hover { background: var(--warning); color: #fff; border-color: var(--warning); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-xs { padding: 2px 8px; font-size: 11px; border-radius: 4px; }
+
+/* Cards */
+.card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
+.card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fafbfc; }
+.card-header h3 { font-size: 15px; font-weight: 600; }
+
+/* Dashboard stats */
+.dashboard-stats { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+.stat-card {
+  flex:1; min-width:120px; background:#fff; border-radius:var(--radius);
+  padding:14px 16px; box-shadow:var(--shadow); text-align:center;
+}
+.stat-card .stat-num { font-size:28px; font-weight:700; line-height:1.2; }
+.stat-card .stat-label { font-size:12px; color:var(--text-secondary); margin-top:4px; }
+.stat-card.ok .stat-num { color:#2e7d32; }
+.stat-card.warn .stat-num { color:#e65100; }
+.stat-card.bad .stat-num { color:#c62828; }
+.stat-card.info .stat-num { color:#1565c0; }
+
+/* Compact req table */
+.req-table-wrap { overflow-x:auto; }
+.req-table { width:100%; border-collapse:collapse; font-size:13px; background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); }
+.req-table th { background:#f5f6fa; font-weight:600; padding:10px 12px; text-align:left; white-space:nowrap; border-bottom:2px solid var(--border); font-size:12px; color:var(--text-secondary); }
+.req-table td { padding:8px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.req-table tr:hover td { background:#fafbfc; }
+.req-table tr.delayed-row td { background:#fffef5; }
+.req-table tr.delayed-row:hover td { background:#fff8e1; }
+.req-table .req-name-cell { font-weight:600; }
+.req-table .req-name-cell .req-num { color:var(--primary); font-size:11px; background:#edeffc; padding:1px 6px; border-radius:3px; margin-left:6px; }
+.req-table .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:2px; }
+.req-table .dot.green { background:#4caf50; }
+.req-table .dot.red { background:#f44336; }
+.req-table .dot.orange { background:#ff9800; }
+.req-table .cell-actions { white-space:nowrap; }
+.req-table .row-detail { display:none; }
+.req-table .row-detail.open { display:table-row; }
+.req-table .row-detail td { background:#f8f9fa; padding:12px 16px; }
+.expand-arrow { cursor:pointer; font-size:10px; color:var(--primary); user-select:none; }
+.expand-arrow.open { transform:rotate(90deg); }
+.req-table td:last-child, .req-table th:last-child { text-align:right; }
+
+/* Expanded detail */
+.detail-expanded { display:flex; gap:16px; }
+.detail-section { flex:1; min-width:0; max-width:500px; }
+.detail-section-title { font-size:12px; font-weight:700; color:var(--primary); margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid var(--border); text-align:center; }
+.mini-table { width:100%; border-collapse:collapse; font-size:12px; background:#fff; border-radius:4px; overflow:hidden; border:1px solid var(--border); }
+.mini-table th { background:#f0f1f5; font-weight:600; padding:6px 10px; text-align:left; font-size:11px; color:var(--text-secondary); }
+.mini-table td { padding:5px 10px; border-top:1px solid #eee; }
+.mini-table code { background:#edeffc; padding:1px 6px; border-radius:3px; font-size:11px; color:var(--primary); }
+
+/* Status tags */
+.status-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.status-tag { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.status-tag.yes { background: #e8f5e9; color: #2e7d32; }
+.status-tag.no { background: #fce4ec; color: #c62828; }
+.status-tag.warn { background: #fff3e0; color: #e65100; }
+.status-tag.info { background: #e3f2fd; color: #1565c0; }
+
+/* Toggle blocks */
+.req-detail-row { display: flex; gap: 12px; margin-top: 8px; }
+.req-toggle-block { flex: 1; min-width: 0; }
+.req-toggle-header { font-size: 12px; font-weight: 600; color: var(--primary); cursor: pointer; padding: 4px 8px; border-radius: 4px; user-select: none; background: #f5f6fa; display: flex; align-items: center; gap: 4px; }
+.req-toggle-header:hover { background: #edeffc; }
+.req-toggle-header .toggle-arrow { font-size: 9px; transition: transform 0.2s; }
+.req-toggle-header .toggle-arrow.open { transform: rotate(180deg); }
+.req-toggle-body { margin-top: 4px; }
+.req-toggle-body table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.req-toggle-body th, .req-toggle-body td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; }
+.req-toggle-body th { background: #f5f6fa; font-weight: 600; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-start; justify-content: center; padding-top: 40px; overflow-y: auto; }
+.modal-overlay.show { display: flex; }
+.modal { background: #fff; border-radius: 12px; width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.2); margin-bottom: 40px; }
+.modal-lg { max-width: 1000px; }
+.modal-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #fff; z-index: 1; }
+.modal-header h2 { font-size: 18px; }
+.modal-body { padding: 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; position: sticky; bottom: 0; background: #fff; }
+
+/* Form */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; transition: border-color 0.15s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+.form-group textarea { resize: vertical; min-height: 60px; font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12px; }
+.form-row { display: flex; gap: 12px; }
+.form-row .form-group { flex: 1; }
+.section-title { font-size: 14px; font-weight: 700; color: var(--primary); margin: 20px 0 12px 0; padding-bottom: 6px; border-bottom: 2px solid #edeffc; }
+.sql-editor-block { background: #f8f9fa; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+.sql-editor-block textarea { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12px; background: #1e1e1e; color: #d4d4d4; min-height: 80px; }
+
+/* Search & Settings */
+.search-input { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; width: 240px; outline: none; }
+.search-input:focus { border-color: var(--primary); }
+.settings-toggle { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-secondary); padding: 4px; }
+.settings-toggle:hover { color: var(--text); }
+.gitlab-fetch-row { display: flex; gap: 8px; align-items: flex-end; margin-top: 8px; }
+.gitlab-fetch-row .form-group { flex: 1; margin-bottom: 0; }
+.gitlab-branches { margin-top: 8px; max-height: 150px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; padding: 4px; }
+.gitlab-branches .branch-option { padding: 4px 8px; cursor: pointer; border-radius: 4px; font-size: 13px; }
+.gitlab-branches .branch-option:hover { background: #edeffc; }
+
+/* Server mode indicator */
+.mode-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; margin-left: 4px; }
+.mode-badge.local { background: #e8f5e9; color: #2e7d32; }
+.mode-badge.shared { background: #e3f2fd; color: #1565c0; }
+
+/* Toast */
+.toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 14px; z-index: 2000; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.info { background: var(--primary); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+.empty-state p { font-size: 15px; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>投产清单<span class="mode-badge" id="modeBadge">本地</span></h2>
+    <button class="btn-icon" onclick="addYear()" title="新建年份">+</button>
+  </div>
+  <div class="sidebar-body" id="sidebarBody"></div>
+  <div style="padding:10px 16px;border-top:1px solid rgba(255,255,255,0.1)">
+    <button class="settings-toggle" onclick="toggleSettings()" title="Git仓库设置" style="color:#95a5a6;background:none;border:none;font-size:13px;cursor:pointer;width:100%;text-align:left;padding:6px 0">&#9881; 仓库设置</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="main-header">
+    <h1 id="mainTitle">请选择投产窗口</h1>
+    <div class="header-actions"></div>
+  </div>
+  <div class="main-content" id="mainContent">
+    <div class="empty-state"><div class="empty-icon">&#128203;</div><p>请从左侧选择一个投产窗口查看需求</p></div>
+  </div>
+</main>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header"><h2>Git 代码仓库配置</h2><button class="btn btn-sm" onclick="closeSettings()">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>仓库类型</label>
+        <select id="gitProvider" onchange="toggleGitFields()">
+          <option value="gitlab">GitLab（自建/内网）</option>
+          <option value="github">GitHub</option>
+        </select>
+      </div>
+      <div id="gitlabFields">
+        <div class="form-group"><label>GitLab 地址</label><input type="text" id="gitlabHost" placeholder="https://gitlab.yourcompany.com"></div>
+      </div>
+      <div class="form-group">
+        <label>Personal Access Token</label>
+        <input type="password" id="gitToken" placeholder="输入Token">
+        <span style="font-size:11px;color:#999">GitHub: Settings &gt; Developer settings &gt; Tokens (classic)，勾选 repo</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeSettings()">取消</button>
+      <button class="btn btn-primary" onclick="saveSettings()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Window Modal -->
+<div class="modal-overlay" id="windowModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="windowModalTitle">新建投产窗口</h2>
+      <button class="btn btn-sm" onclick="closeWindowModal()">&#10005;</button>
+    </div>
+    <div class="modal-body"><div class="form-group"><label>投产日期 *</label><input type="text" id="winDate" placeholder="格式：20260531" maxlength="8"></div></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeWindowModal()">取消</button>
+      <button class="btn btn-danger btn-sm" id="btnDeleteWindow" style="margin-right:auto; display:none" onclick="deleteWindow()">删除此窗口</button>
+      <button class="btn btn-primary" id="btnSaveWindow" onclick="saveWindow()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Requirement Edit Modal -->
+<div class="modal-overlay" id="reqModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2 id="reqModalTitle">新建需求</h2>
+      <button class="btn btn-sm" onclick="closeReqModal()">&#10005;</button>
+    </div>
+    <div class="modal-body" id="reqModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeReqModal()">取消</button>
+      <button class="btn btn-danger btn-sm" id="btnDeleteReq" style="margin-right:auto; display:none" onclick="deleteRequirement()">删除此需求</button>
+      <button class="btn btn-primary" onclick="saveRequirement()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Requirement View Modal -->
+<div class="modal-overlay" id="viewReqModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2 id="viewReqTitle">需求详情</h2>
+      <button class="btn btn-sm" onclick="document.getElementById('viewReqModal').classList.remove('show')">&#10005;</button>
+    </div>
+    <div class="modal-body" id="viewReqBody"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('viewReqModal').classList.remove('show')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+// ========== Data Layer ==========
+var API_BASE = ''; // 后端地址，空=同服务器  例: 'http://192.168.1.100:3000'
+var isServerMode = window.location.protocol !== 'file:';
+var data = { years: [], windows: [] };
+var dataVersion = 0;
+var gitConfig = { provider: 'github', gitlab: { host: '', token: '' }, github: { owner: '', repo: '', token: '' } };
+
+function loadData(callback) {
+  if (isServerMode) {
+    fetch(API_BASE + '/api/data').then(function(r) { return r.json(); }).then(function(d) {
+      dataVersion = d._version || 0;
+      data = d;
+      if (callback) callback();
+      initUI();
+    }).catch(function(e) {
+      showToast('加载数据失败: ' + e.message, 'error');
+      if (callback) callback();
+      initUI();
+    });
+  } else {
+    var raw = localStorage.getItem('deploy_manager_data');
+    if (raw) data = JSON.parse(raw);
+    if (callback) callback();
+    initUI();
+  }
+}
+
+function saveData() {
+  if (isServerMode) {
+    var payload = JSON.parse(JSON.stringify(data));
+    payload._version = dataVersion;
+    fetch(API_BASE + '/api/data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function(r) { return r.json(); })
+      .then(function(resp) {
+        if (resp.ok) dataVersion = resp._version;
+        else if (resp.conflict) showToast(resp.message, 'error');
+      })
+      .catch(function(e) { showToast('保存失败: ' + e.message, 'error'); });
+  } else {
+    localStorage.setItem('deploy_manager_data', JSON.stringify(data));
+  }
+}
+
+function loadGitConfig() {
+  var raw = localStorage.getItem('deploy_manager_git');
+  if (raw) gitConfig = JSON.parse(raw);
+}
+
+function saveGitConfig(cfg) {
+  gitConfig = cfg;
+  localStorage.setItem('deploy_manager_git', JSON.stringify(cfg));
+}
+
+// ========== State ==========
+var expandedYears = {};
+var currentYear = null;
+var selectedWindowId = null;
+var editingWindowId = null;
+var editingReqId = null;
+var editingReqWindowId = null;
+var moduleCounter = 0;
+var sqlCounter = 0;
+var githubRepos = [];
+var branchCache = {};
+var branchLoading = {};
+var suppressRepoChange = false;
+
+// ========== Helpers ==========
+function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); }
+function showToast(msg, type) {
+  type = type || 'info';
+  var c = document.getElementById('toastContainer');
+  var el = document.createElement('div');
+  el.className = 'toast ' + type; el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(function() { el.remove(); }, 3000);
+}
+function escHtml(s) {
+  if (!s) return '';
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ========== Sidebar ==========
+function renderSidebar() {
+  var body = document.getElementById('sidebarBody');
+  var years = data.years.slice().sort(function(a, b) { return b - a; });
+  if (years.length === 0) {
+    body.innerHTML = '<div style="padding:20px;text-align:center;color:#7f8c8d;">暂无年份，点击 + 新建</div>';
+    return;
+  }
+  body.innerHTML = years.map(function(y) {
+    var isExpanded = expandedYears[y];
+    var windows = data.windows.filter(function(w) { return w.year === y; }).sort(function(a, b) { return a.date < b.date ? -1 : 1; });
+    return '<div class="year-group">'
+      + '<div class="year-group-header" onclick="toggleYear(' + y + ')">'
+      + '<span class="year-label"><span class="arrow' + (isExpanded ? ' expanded' : '') + '">&#9654;</span>' + y + ' 年 <span style="font-size:11px;color:#7f8c8d">(' + windows.length + ')</span></span>'
+      + '<span class="year-actions">'
+      + '<button class="btn-sm" onclick="event.stopPropagation();editYear(' + y + ')">&#9998;</button>'
+      + '<button class="btn-sm" onclick="event.stopPropagation();deleteYear(' + y + ')" style="color:#e74c3c">&#10005;</button>'
+      + '</span></div>'
+      + '<div class="window-sublist' + (isExpanded ? ' open' : '') + '">'
+      + windows.map(function(w) {
+          return '<div class="window-sublist-item' + (selectedWindowId === w.id ? ' active' : '') + '" onclick="event.stopPropagation();selectWindow(\'' + w.id + '\')">'
+            + '<span>&#128197; ' + w.date + '</span>'
+            + '<span class="win-actions">'
+            + '<button class="btn-xs" onclick="event.stopPropagation();openWindowModal(\'' + w.id + '\')">&#9998;</button>'
+            + '<button class="btn-xs" onclick="event.stopPropagation();deleteWindow(\'' + w.id + '\')" style="color:#e74c3c">&#10005;</button>'
+            + '</span></div>';
+        }).join('')
+      + '<div class="add-window-btn" onclick="event.stopPropagation();openWindowModalForYear(' + y + ')">+ 新建投产窗口</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function toggleYear(y) {
+  expandedYears[y] = !expandedYears[y];
+  currentYear = y;
+  renderSidebar();
+}
+function selectWindow(windowId) {
+  selectedWindowId = windowId;
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (w) currentYear = w.year;
+  renderSidebar();
+  renderMain();
+}
+
+// ========== Year CRUD ==========
+function addYear() {
+  var y = prompt('请输入新年份（如 2026）：');
+  if (!y) return;
+  var num = parseInt(y);
+  if (isNaN(num) || num < 2000 || num > 2100) { showToast('请输入有效年份', 'error'); return; }
+  if (data.years.indexOf(num) !== -1) { showToast('该年份已存在', 'error'); return; }
+  data.years.push(num);
+  expandedYears[num] = true;
+  currentYear = num;
+  saveData();
+  renderSidebar();
+  showToast('年份已添加', 'success');
+}
+function editYear(y) {
+  var ny = prompt('修改年份：', y);
+  if (!ny || ny == y) return;
+  var num = parseInt(ny);
+  if (isNaN(num) || num < 2000 || num > 2100) { showToast('请输入有效年份', 'error'); return; }
+  if (data.years.indexOf(num) !== -1) { showToast('该年份已存在', 'error'); return; }
+  data.years = data.years.map(function(v) { return v === y ? num : v; });
+  data.windows.forEach(function(w) { if (w.year === y) w.year = num; });
+  if (currentYear === y) currentYear = num;
+  expandedYears[num] = expandedYears[y];
+  delete expandedYears[y];
+  saveData();
+  renderSidebar();
+  renderMain();
+  showToast('年份已更新', 'success');
+}
+function deleteYear(y) {
+  if (!confirm('确定删除 ' + y + ' 年及其所有投产窗口和需求吗？此操作不可恢复。')) return;
+  data.years = data.years.filter(function(v) { return v !== y; });
+  data.windows = data.windows.filter(function(w) { return w.year !== y; });
+  delete expandedYears[y];
+  if (currentYear === y) currentYear = null;
+  if (selectedWindowId && !data.windows.find(function(w) { return w.id === selectedWindowId; })) selectedWindowId = null;
+  saveData();
+  renderSidebar();
+  renderMain();
+  showToast('年份已删除', 'success');
+}
+
+// ========== Window CRUD ==========
+function openWindowModalForYear(y) { currentYear = y; openWindowModal(null); }
+function openWindowModal(editId) {
+  editingWindowId = editId || null;
+  document.getElementById('windowModal').classList.add('show');
+  document.getElementById('windowModalTitle').textContent = editId ? '编辑投产窗口' : '新建投产窗口';
+  document.getElementById('btnDeleteWindow').style.display = editId ? '' : 'none';
+  if (editId) {
+    var w = data.windows.find(function(v) { return v.id === editId; });
+    if (w) document.getElementById('winDate').value = w.date;
+  } else {
+    document.getElementById('winDate').value = '';
+  }
+}
+function closeWindowModal() { document.getElementById('windowModal').classList.remove('show'); editingWindowId = null; }
+function saveWindow() {
+  var date = document.getElementById('winDate').value.trim();
+  if (!date) { showToast('请填写日期', 'error'); return; }
+  if (!/^\d{8}$/.test(date)) { showToast('日期格式错误，请输入如 20260531', 'error'); return; }
+  if (editingWindowId) {
+    var w = data.windows.find(function(v) { return v.id === editingWindowId; });
+    if (w) w.date = date;
+  } else {
+    if (!currentYear) { showToast('请先选择年份', 'error'); return; }
+    var newWin = { id: genId(), year: currentYear, date: date, requirements: [] };
+    data.windows.push(newWin);
+    expandedYears[currentYear] = true;
+    if (!selectedWindowId) selectedWindowId = newWin.id;
+  }
+  saveData();
+  closeWindowModal();
+  renderSidebar();
+  renderMain();
+  showToast('投产窗口已保存', 'success');
+}
+function deleteWindow(id) {
+  if (!confirm('确定删除此投产窗口及其所有需求吗？此操作不可恢复。')) return;
+  data.windows = data.windows.filter(function(w) { return w.id !== id; });
+  if (selectedWindowId === id) selectedWindowId = data.windows.length > 0 ? data.windows[data.windows.length - 1].id : null;
+  saveData();
+  renderSidebar();
+  renderMain();
+  showToast('投产窗口已删除', 'success');
+}
+
+// ========== Main Content ==========
+function renderMain() {
+  var title = document.getElementById('mainTitle');
+  var content = document.getElementById('mainContent');
+
+  if (!selectedWindowId) {
+    title.textContent = currentYear ? currentYear + ' 年 - 请选择投产窗口' : '请选择投产窗口';
+    content.innerHTML = '<div class="empty-state"><p>请从左侧选择一个投产窗口查看需求</p></div>';
+    return;
+  }
+
+  var win = data.windows.find(function(w) { return w.id === selectedWindowId; });
+  if (!win) { selectedWindowId = null; renderMain(); return; }
+
+  title.textContent = win.year + ' 年 投产窗口：' + win.date;
+
+  var searchEl = document.getElementById('winSearch');
+  var searchTerm = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  var allReqs = win.requirements || [];
+
+  // count total SQLs
+  var totalSqls = 0;
+  allReqs.forEach(function(r) { totalSqls += (r.sqlFiles || []).length; });
+  if (searchTerm) {
+    allReqs = allReqs.filter(function(r) {
+      return r.name.toLowerCase().indexOf(searchTerm) !== -1 || r.number.toLowerCase().indexOf(searchTerm) !== -1;
+    });
+  }
+  var normalReqs = allReqs.filter(function(r) { return r.status !== 'delayed'; });
+  var delayedReqs = allReqs.filter(function(r) { return r.status === 'delayed'; });
+
+  // Stats
+  var total = allReqs.length;
+  var reviewed = allReqs.filter(function(r) { return r.reviewStatus === '已评审'; }).length;
+  var merged = allReqs.filter(function(r) { return r.codeMerged; }).length;
+  var sitDone = allReqs.filter(function(r) { return r.sitReport; }).length;
+  var uatDone = allReqs.filter(function(r) { return r.uatReport; }).length;
+  var delayed = delayedReqs.length;
+  var ready = allReqs.filter(function(r) {
+    return r.status === 'normal' && r.reviewStatus === '已评审' && r.codeMerged && r.sitReport && r.uatReport;
+  }).length;
+
+  var html = '';
+
+  // Dashboard stats
+  html += '<div class="dashboard-stats">'
+    + '<div class="stat-card info"><div class="stat-num">' + total + '</div><div class="stat-label">需求总数</div></div>'
+    + '<div class="stat-card ok"><div class="stat-num">' + ready + '</div><div class="stat-label">已就绪</div></div>'
+    + '<div class="stat-card ' + (reviewed >= total ? 'ok' : 'warn') + '"><div class="stat-num">' + reviewed + '/' + total + '</div><div class="stat-label">已评审</div></div>'
+    + '<div class="stat-card ' + (merged >= total ? 'ok' : 'warn') + '"><div class="stat-num">' + merged + '/' + total + '</div><div class="stat-label">代码已合并</div></div>'
+    + '<div class="stat-card ' + (sitDone >= total ? 'ok' : 'warn') + '"><div class="stat-num">' + sitDone + '/' + total + '</div><div class="stat-label">SIT报告</div></div>'
+    + '<div class="stat-card ' + (uatDone >= total ? 'ok' : 'warn') + '"><div class="stat-num">' + uatDone + '/' + total + '</div><div class="stat-label">UAT报告</div></div>'
+    + (delayed > 0 ? '<div class="stat-card bad"><div class="stat-num">' + delayed + '</div><div class="stat-label">已延期</div></div>' : '')
+    + '</div>';
+
+  // Delayed summary
+  if (delayed > 0) {
+    html += '<div class="card"><div class="card-header"><h3>&#9888; 延期需求 <span class="badge">' + delayed + '</span></h3></div>'
+      + '<div class="card-body">'
+      + delayedReqs.map(function(r) {
+          return '<span style="display:inline-block;margin:2px 12px 2px 0;font-size:13px">'
+            + escHtml(r.name) + ' <span class="status-tag no" style="font-size:10px">' + escHtml(r.number) + '</span>'
+            + ' <button class="btn btn-xs" onclick="restoreRequirement(\'' + win.id + '\',\'' + r.id + '\')">恢复</button></span>';
+        }).join('')
+      + '</div></div>';
+  }
+
+  // Requirements table
+  html += '<div class="card"><div class="card-header">'
+    + '<div style="display:flex;align-items:center;gap:8px;flex:1">'
+    + '<h3>&#128203; 需求列表（' + normalReqs.length + '个）</h3>'
+    + '<input type="text" class="search-input" id="winSearch" placeholder="搜索需求..." oninput="renderMain()" value="' + escHtml(searchTerm) + '" autocomplete="off" style="width:180px">'
+    + '</div>'
+    + '<div style="display:flex;gap:6px">'
+    + (totalSqls > 0 ? '<button class="btn btn-sm" onclick="downloadAllWindowSql(\'' + win.id + '\')">&#128229; 下载全部SQL (' + totalSqls + ')</button>' : '')
+    + '<button class="btn btn-sm btn-primary" onclick="openReqModal(\'' + win.id + '\')">+ 新建需求</button>'
+    + '</div></div>'
+    + '<div class="card-body" style="padding:0">';
+
+  if (normalReqs.length === 0) {
+    html += '<p style="color:#999;font-size:13px;text-align:center;padding:40px">暂无需求</p>';
+  } else {
+    html += '<div class="req-table-wrap"><table class="req-table"><thead><tr>'
+      + '<th style="width:30px"></th><th>需求</th><th>解决人</th><th>业务</th>'
+      + '<th>SIT</th><th>UAT</th><th>评审</th><th>合并</th><th style="width:130px">操作</th></tr></thead><tbody>';
+
+    normalReqs.forEach(function(r, idx) {
+      var uid = 'r' + r.id;
+      var reviewTag = r.reviewStatus === '已评审' ? 'ok' : r.reviewStatus === '未评审' ? 'bad' : 'warn';
+      var reviewText = r.reviewStatus === '其他' ? (r.reviewStatusNote || '其他') : r.reviewStatus;
+      var hasDetail = (r.modules && r.modules.length > 0) || (r.sqlFiles && r.sqlFiles.length > 0);
+
+      var rowClick = hasDetail ? ' onclick="toggleReqRow(\'' + uid + '\')" style="cursor:pointer"' : '';
+      html += '<tr class="normal-row" id="' + uid + '"' + rowClick + '>'
+        + (hasDetail ? '<td><span class="expand-arrow" id="' + uid + '-arrow">&#9654;</span></td>' : '<td></td>')
+        + '<td class="req-name-cell">' + escHtml(r.name) + '<span class="req-num">' + escHtml(r.number) + '</span></td>'
+        + '<td>' + escHtml(r.resolver || '-') + '</td>'
+        + '<td>' + escHtml(r.businessPerson || '-') + '</td>'
+        + '<td><span class="dot ' + (r.sitReport ? 'green' : 'red') + '"></span>' + (r.sitReport ? '已收集' : '未收集') + '</td>'
+        + '<td><span class="dot ' + (r.uatReport ? 'green' : 'red') + '"></span>' + (r.uatReport ? '已收集' : '未收集') + '</td>'
+        + '<td><span class="dot ' + (r.reviewStatus === '已评审' ? 'green' : r.reviewStatus === '未评审' ? 'red' : 'orange') + '"></span>' + escHtml(reviewText) + '</td>'
+        + '<td><span class="dot ' + (r.codeMerged ? 'green' : 'red') + '"></span>' + (r.codeMerged ? '已合并' : '未合并') + '</td>'
+        + '<td class="cell-actions" onclick="event.stopPropagation()">'
+        + '<button class="btn btn-xs" onclick="viewRequirement(\'' + win.id + '\',\'' + r.id + '\')">查看</button> '
+        + '<button class="btn btn-xs" onclick="openReqModal(\'' + win.id + '\',\'' + r.id + '\')">编辑</button> '
+        + '<button class="btn btn-xs btn-danger" onclick="deleteRequirement(\'' + win.id + '\',\'' + r.id + '\')">删除</button>'
+        + '</td></tr>';
+
+      if (hasDetail) {
+        html += '<tr class="row-detail" id="' + uid + '-detail"><td></td><td colspan="8">'
+          + '<div class="detail-expanded">';
+        if (r.modules && r.modules.length > 0) {
+          html += '<div class="detail-section"><div class="detail-section-title">&#128736; 代码模块</div>'
+            + '<table class="mini-table"><thead><tr><th>模块</th><th>分支</th></tr></thead><tbody>';
+          r.modules.forEach(function(m) {
+            var dn = m.name.indexOf('/') > -1 ? m.name.split('/').pop() : m.name;
+            html += '<tr><td>' + escHtml(dn) + '</td><td><code>' + (m.branch ? escHtml(m.branch) : '无分支') + '</code></td></tr>';
+          });
+          html += '</tbody></table></div>';
+        }
+        if (r.sqlFiles && r.sqlFiles.length > 0) {
+          html += '<div class="detail-section"><div class="detail-section-title">&#128451; 数据库清单</div>'
+            + '<table class="mini-table"><thead><tr><th>SQL文件</th><th>数据库</th><th>操作</th></tr></thead><tbody>';
+          r.sqlFiles.forEach(function(s, i) {
+            var fn = s.dbName + r.name + '.sql';
+            html += '<tr><td><code>' + escHtml(fn) + '</code></td><td>' + escHtml(s.dbName) + '</td><td style="white-space:nowrap">'
+              + '<button class="btn btn-xs" onclick="viewSqlOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看SQL</button> '
+              + '<button class="btn btn-xs btn-primary" onclick="downloadSqlById(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载</button></td></tr>';
+          });
+          html += '</tbody></table></div>';
+        }
+        html += '</div></td></tr>';
+      }
+    });
+
+    html += '</tbody></table></div></div></div>';
+  }
+
+  content.innerHTML = html;
+}
+
+function toggleReqRow(uid) {
+  var detail = document.getElementById(uid + '-detail');
+  var arrow = document.getElementById(uid + '-arrow');
+  if (!detail) return;
+  if (detail.classList.contains('open')) {
+    detail.classList.remove('open');
+    if (arrow) arrow.classList.remove('open');
+  } else {
+    detail.classList.add('open');
+    if (arrow) arrow.classList.add('open');
+  }
+}
+
+// ========== View Requirement ==========
+function viewRequirement(windowId, reqId) {
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  var r = (w.requirements || []).find(function(v) { return v.id === reqId; });
+  if (!r) return;
+
+  document.getElementById('viewReqTitle').textContent = '需求详情：' + r.name + '（' + r.number + '）';
+  var body = document.getElementById('viewReqBody');
+
+  var sqlHtml = '';
+  if (r.sqlFiles && r.sqlFiles.length > 0) {
+    sqlHtml = r.sqlFiles.map(function(s, i) {
+      return '<div class="sql-editor-block"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
+        + '<h4 style="margin:0;font-size:13px;color:var(--primary)">SQL文件 #' + (i+1) + ' — 数据库：' + escHtml(s.dbName) + '</h4>'
+        + '<button class="btn btn-xs btn-primary" onclick="downloadSqlById(\'' + windowId + '\',\'' + reqId + '\',' + i + ')">下载</button></div>'
+        + '<div class="form-group"><label>——查询</label><textarea readonly rows="3">' + escHtml(s.query || '(空)') + '</textarea></div>'
+        + '<div class="form-group"><label>——执行</label><textarea readonly rows="3">' + escHtml(s.execute || '(空)') + '</textarea></div>'
+        + '<div class="form-group"><label>——回退</label><textarea readonly rows="3">' + escHtml(s.rollback || '(空)') + '</textarea></div></div>';
+    }).join('');
+  } else {
+    sqlHtml = '<p style="color:#999;font-size:13px;">暂无SQL文件</p>';
+  }
+
+  var modsHtml = '';
+  if (r.modules && r.modules.length > 0) {
+    modsHtml = '<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="border:1px solid var(--border);padding:6px 10px;text-align:left;background:#f5f6fa">代码模块</th><th style="border:1px solid var(--border);padding:6px 10px;text-align:left;background:#f5f6fa">开发分支</th></tr></thead><tbody>'
+      + r.modules.map(function(m) {
+          var dn = m.name.indexOf('/') > -1 ? m.name.split('/').pop() : m.name;
+          return '<tr><td style="border:1px solid var(--border);padding:6px 10px">' + escHtml(dn) + '</td><td style="border:1px solid var(--border);padding:6px 10px">' + (m.branch ? escHtml(m.branch) : '无分支') + '</td></tr>';
+        }).join('')
+      + '</tbody></table>';
+  }
+
+  body.innerHTML = '<div class="form-row"><div class="form-group"><label>需求名称</label><input type="text" value="' + escHtml(r.name) + '" readonly></div>'
+    + '<div class="form-group"><label>需求编号</label><input type="text" value="' + escHtml(r.number) + '" readonly></div></div>'
+    + '<div class="form-row"><div class="form-group"><label>解决人</label><input type="text" value="' + escHtml(r.resolver || '-') + '" readonly></div>'
+    + '<div class="form-group"><label>业务人员</label><input type="text" value="' + escHtml(r.businessPerson || '-') + '" readonly></div></div>'
+    + (modsHtml ? '<div class="section-title">&#128736; 涉及代码模块与开发分支</div>' + modsHtml : '')
+    + '<div class="section-title">&#128451; SQL 脚本</div>' + sqlHtml
+    + '<div class="section-title">&#128203; 报告与评审</div>'
+    + '<div class="status-tags" style="margin-bottom:12px">'
+    + '<span class="status-tag ' + (r.sitReport ? 'yes' : 'no') + '">SIT报告：' + (r.sitReport ? '已收集' : '未收集') + '</span>'
+    + '<span class="status-tag ' + (r.uatReport ? 'yes' : 'no') + '">UAT报告：' + (r.uatReport ? '已收集' : '未收集') + '</span>'
+    + '<span class="status-tag ' + (r.reviewStatus === '已评审' ? 'yes' : r.reviewStatus === '未评审' ? 'no' : 'warn') + '">上线评审：' + escHtml(r.reviewStatus === '其他' ? (r.reviewStatusNote || '其他') : r.reviewStatus) + '</span>'
+    + '<span class="status-tag ' + (r.codeMerged ? 'yes' : 'no') + '">代码合并：' + (r.codeMerged ? '已合并' : '未合并') + '</span>'
+    + '</div>';
+
+  document.getElementById('viewReqModal').classList.add('show');
+}
+
+// ========== Requirement Edit Modal ==========
+function openReqModal(windowId, editReqId) {
+  editingReqWindowId = windowId;
+  editingReqId = editReqId || null;
+  moduleCounter = 0; sqlCounter = 0;
+  document.getElementById('reqModal').classList.add('show');
+  document.getElementById('reqModalTitle').textContent = editReqId ? '编辑需求' : '新建需求';
+  document.getElementById('btnDeleteReq').style.display = editReqId ? '' : 'none';
+
+  var req = null;
+  if (editReqId) {
+    var w = data.windows.find(function(v) { return v.id === windowId; });
+    if (w) req = (w.requirements || []).find(function(r) { return r.id === editReqId; });
+  }
+  document.getElementById('reqModalBody').innerHTML = buildReqForm(req);
+  if (req && req.modules) moduleCounter = req.modules.length;
+}
+
+function buildReqForm(req) {
+  var modules = req ? (req.modules || []) : [];
+  var sqlFiles = req ? (req.sqlFiles || []) : [];
+  var isEdit = !!req;
+
+  var modRows = modules.map(function(m, i) {
+    var repoHtml = '<option value="">-- 选择项目 --</option>';
+    var found = false;
+    githubRepos.forEach(function(r) {
+      var sel = (r.full_name === m.name || r.name === m.name) ? ' selected' : '';
+      if (sel) found = true;
+      repoHtml += '<option value="' + escHtml(r.full_name) + '"' + sel + '>' + escHtml(r.name) + '</option>';
+    });
+    if (m.name && !found) {
+      repoHtml = '<option value="' + escHtml(m.name) + '" selected>' + escHtml(m.name) + ' (手动)</option>' + repoHtml;
+    }
+    var branchOpts = buildBranchOptionsForForm(m.name, m.branch);
+    return '<div class="form-row" style="margin-bottom:4px" id="modRow' + i + '">'
+      + '<div class="form-group"><label>项目</label><select id="modName' + i + '" onchange="onModuleRepoChange(' + i + ')" style="width:100%">' + repoHtml + '</select></div>'
+      + '<div class="form-group"><label>分支</label><select id="modBranch' + i + '" style="width:100%">' + branchOpts + '</select></div>'
+      + '<div style="display:flex;align-items:flex-end;padding-bottom:14px"><button class="btn btn-xs btn-danger" onclick="document.getElementById(\'modRow' + i + '\').remove()">&#10005;</button></div>'
+      + '</div>';
+  }).join('');
+
+  var sqlRows = sqlFiles.map(function(s, i) { return buildSqlEditor(i, s); }).join('');
+
+  var statusHtml = '';
+  if (isEdit) {
+    statusHtml = '<div class="section-title">&#128260; 上线状态</div>'
+      + '<div class="form-group"><label>需求状态</label><select id="reqStatus">'
+      + '<option value="normal"' + (req && req.status === 'normal' ? ' selected' : '') + '>正常上线</option>'
+      + '<option value="delayed"' + (req && req.status === 'delayed' ? ' selected' : '') + '>延期</option>'
+      + '</select></div>';
+  }
+
+  return '<div class="form-row"><div class="form-group"><label>需求名称 *</label><input type="text" id="reqName" value="' + escHtml(req ? req.name : '') + '"></div>'
+    + '<div class="form-group"><label>需求编号 *</label><input type="text" id="reqNumber" value="' + escHtml(req ? req.number : '') + '"></div></div>'
+    + '<div class="form-row"><div class="form-group"><label>解决人</label><input type="text" id="reqResolver" value="' + escHtml(req ? req.resolver : '') + '"></div>'
+    + '<div class="form-group"><label>业务人员</label><input type="text" id="reqBizPerson" value="' + escHtml(req ? req.businessPerson : '') + '"></div></div>'
+    + '<div class="section-title">&#128736; 涉及代码模块与开发分支</div>'
+    + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+    + '<button class="btn btn-sm btn-primary" onclick="fetchRepos()">&#128260; 获取项目列表</button>'
+    + '<span id="repoFetchStatus" style="font-size:12px;color:#999"></span></div>'
+    + '<div id="modulesContainer">' + (modRows || '<p style="color:#999;font-size:12px;">暂无模块，点击下方按钮添加</p>') + '</div>'
+    + '<button class="btn btn-sm" style="margin-top:8px" onclick="addModuleRow()">+ 添加模块</button>'
+    + '<div class="section-title">&#128451; SQL 文件</div>'
+    + '<div id="sqlContainer">' + (sqlRows || '<p style="color:#999;font-size:12px;">暂无SQL文件</p>') + '</div>'
+    + '<button class="btn btn-sm" style="margin-top:8px" onclick="addSqlFile()">+ 添加SQL文件</button>'
+    + '<div class="section-title">&#128203; 报告与评审</div>'
+    + '<div class="form-row"><div class="form-group"><label>SIT 测试报告</label><select id="reqSitReport"><option value="0"' + (req && !req.sitReport ? ' selected' : '') + '>未收集</option><option value="1"' + (req && req.sitReport ? ' selected' : '') + '>已收集</option></select></div>'
+    + '<div class="form-group"><label>UAT 测试报告</label><select id="reqUatReport"><option value="0"' + (req && !req.uatReport ? ' selected' : '') + '>未收集</option><option value="1"' + (req && req.uatReport ? ' selected' : '') + '>已收集</option></select></div></div>'
+    + '<div class="form-row"><div class="form-group"><label>上线评审状态</label><select id="reqReviewStatus" onchange="toggleReviewNote()"><option value="未评审"' + (req && req.reviewStatus === '未评审' ? ' selected' : '') + '>未评审</option><option value="已评审"' + (req && req.reviewStatus === '已评审' ? ' selected' : '') + '>已评审</option><option value="其他"' + (req && req.reviewStatus === '其他' ? ' selected' : '') + '>其他</option></select></div>'
+    + '<div class="form-group" id="reviewNoteGroup" style="display:' + (req && req.reviewStatus === '其他' ? '' : 'none') + '"><label>其他说明</label><input type="text" id="reqReviewNote" value="' + escHtml(req ? (req.reviewStatusNote || '') : '') + '"></div>'
+    + '<div class="form-group"><label>代码是否已合并到上线分支</label><select id="reqCodeMerged"><option value="0"' + (req && !req.codeMerged ? ' selected' : '') + '>未合并</option><option value="1"' + (req && req.codeMerged ? ' selected' : '') + '>已合并</option></select></div></div>'
+    + statusHtml
+    + (!isEdit ? '<input type="hidden" id="reqStatus" value="normal">' : '');
+}
+
+function buildBranchOptionsForForm(repoFull, selectedBranch) {
+  var branches = branchCache[repoFull];
+  // branches loaded from GitHub API -> show full list
+  if (branches && branches.length) {
+    return '<option value="">-- 选择分支 --</option>' + branches.map(function(b) {
+      var sel = (selectedBranch && selectedBranch === b.name) ? ' selected' : '';
+      return '<option value="' + escHtml(b.name) + '"' + sel + '>' + escHtml(b.name) + '</option>';
+    }).join('');
+  }
+  // module has a saved branch -> show it
+  if (selectedBranch) {
+    return '<option value="' + escHtml(selectedBranch) + '" selected>' + escHtml(selectedBranch) + '</option>';
+  }
+  // no data at all -> show helpful hint
+  if (githubRepos.length > 0) {
+    return '<option value="">-- 请先选择项目 --</option>';
+  }
+  return '<option value="">-- 请先获取GitHub项目列表 --</option>';
+}
+
+function buildSqlEditor(index, sql) {
+  return '<div class="sql-editor-block" id="sqlBlock' + index + '">'
+    + '<div class="form-row" style="justify-content:space-between;align-items:center"><div class="form-group" style="flex:0 0 200px"><label>数据库库名 *</label>'
+    + '<select id="sqlDb' + index + '"><option value="db_cm"' + (sql && sql.dbName === 'db_cm' ? ' selected' : '') + '>db_cm</option>'
+    + '<option value="db_core"' + (sql && sql.dbName === 'db_core' ? ' selected' : '') + '>db_core</option>'
+    + '<option value="db_ac"' + (sql && sql.dbName === 'db_ac' ? ' selected' : '') + '>db_ac</option></select></div>'
+    + '<button class="btn btn-xs btn-danger" style="margin-top:18px" onclick="document.getElementById(\'sqlBlock' + index + '\').remove()">&#10005; 删除此SQL</button></div>'
+    + '<div class="form-group"><label>——查询 SQL脚本</label><textarea id="sqlQuery' + index + '" placeholder="SELECT ...">' + (sql ? (sql.query || '') : '') + '</textarea></div>'
+    + '<div class="form-group"><label>——执行 SQL脚本</label><textarea id="sqlExecute' + index + '" placeholder="INSERT/UPDATE/ALTER ...">' + (sql ? (sql.execute || '') : '') + '</textarea></div>'
+    + '<div class="form-group"><label>——回退 SQL脚本</label><textarea id="sqlRollback' + index + '" placeholder="回退SQL ...">' + (sql ? (sql.rollback || '') : '') + '</textarea></div></div>';
+}
+
+function addModuleRow() {
+  var container = document.getElementById('modulesContainer');
+  var p = container.querySelector('p');
+  if (p) p.remove();
+  var i = moduleCounter++;
+  var row = document.createElement('div');
+  row.className = 'form-row'; row.id = 'modRow' + i; row.style.marginBottom = '4px';
+  var reposOpts = githubRepos.map(function(r) { return '<option value="' + escHtml(r.full_name) + '">' + escHtml(r.name) + '</option>'; }).join('');
+  var hint = githubRepos.length > 0 ? '-- 选择项目 --' : '-- 先获取项目列表 --';
+  row.innerHTML = '<div class="form-group"><label>项目</label><select id="modName' + i + '" onchange="onModuleRepoChange(' + i + ')" style="width:100%"><option value="">' + hint + '</option>' + reposOpts + '</select></div>'
+    + '<div class="form-group"><label>分支</label><select id="modBranch' + i + '" style="width:100%"><option value="">' + hint + '</option></select></div>'
+    + '<div style="display:flex;align-items:flex-end;padding-bottom:14px"><button class="btn btn-xs btn-danger" onclick="this.closest(\'.form-row\').remove()">&#10005;</button></div>';
+  container.appendChild(row);
+}
+
+function addSqlFile() {
+  var container = document.getElementById('sqlContainer');
+  var p = container.querySelector('p'); if (p) p.remove();
+  var i = sqlCounter++;
+  var block = document.createElement('div');
+  block.id = 'sqlBlock' + i; block.innerHTML = buildSqlEditor(i, null);
+  container.appendChild(block);
+}
+
+function toggleReviewNote() {
+  document.getElementById('reviewNoteGroup').style.display = document.getElementById('reqReviewStatus').value === '其他' ? '' : 'none';
+}
+
+function collectReqForm() {
+  var name = document.getElementById('reqName').value.trim();
+  var number = document.getElementById('reqNumber').value.trim();
+  if (!name || !number) { showToast('请填写需求名称和需求编号', 'error'); return null; }
+
+  var modules = [];
+  document.querySelectorAll('#modulesContainer .form-row').forEach(function(row) {
+    var selects = row.querySelectorAll('select');
+    var mn = selects.length >= 1 ? selects[0].value.trim() : '';
+    var mb = selects.length >= 2 ? selects[1].value.trim() : '';
+    if (mn) modules.push({ name: mn, branch: mb });
+  });
+
+  var sqlFiles = [];
+  document.querySelectorAll('#sqlContainer .sql-editor-block').forEach(function(block) {
+    var dbSel = block.querySelector('select');
+    var textareas = block.querySelectorAll('textarea');
+    if (dbSel && textareas.length >= 3 && dbSel.value) {
+      sqlFiles.push({ dbName: dbSel.value, query: textareas[0].value, execute: textareas[1].value, rollback: textareas[2].value });
+    }
+  });
+
+  var statusEl = document.getElementById('reqStatus');
+  return {
+    id: editingReqId || genId(),
+    name: name, number: number,
+    resolver: document.getElementById('reqResolver').value.trim(),
+    businessPerson: document.getElementById('reqBizPerson').value.trim(),
+    modules: modules, sqlFiles: sqlFiles,
+    sitReport: document.getElementById('reqSitReport').value === '1',
+    uatReport: document.getElementById('reqUatReport').value === '1',
+    reviewStatus: document.getElementById('reqReviewStatus').value,
+    reviewStatusNote: document.getElementById('reqReviewNote').value.trim(),
+    codeMerged: document.getElementById('reqCodeMerged').value === '1',
+    status: statusEl ? statusEl.value : 'normal'
+  };
+}
+
+function saveRequirement() {
+  var req = collectReqForm();
+  if (!req) return;
+  var w = data.windows.find(function(v) { return v.id === editingReqWindowId; });
+  if (!w) return;
+  if (!w.requirements) w.requirements = [];
+  if (editingReqId) {
+    var idx = w.requirements.findIndex(function(r) { return r.id === editingReqId; });
+    if (idx >= 0) w.requirements[idx] = req;
+  } else {
+    w.requirements.push(req);
+  }
+  saveData();
+  closeReqModal();
+  renderMain();
+  showToast('需求已保存', 'success');
+}
+
+function closeReqModal() {
+  document.getElementById('reqModal').classList.remove('show');
+  editingReqId = null; editingReqWindowId = null;
+  moduleCounter = 0; sqlCounter = 0; branchLoading = {};
+}
+
+function deleteRequirement(windowId, reqId) {
+  if (!confirm('确定删除此需求吗？')) return;
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  w.requirements = (w.requirements || []).filter(function(r) { return r.id !== reqId; });
+  saveData();
+  renderMain();
+  showToast('需求已删除', 'success');
+}
+
+function restoreRequirement(windowId, reqId) {
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  var req = (w.requirements || []).find(function(r) { return r.id === reqId; });
+  if (!req) return;
+  req.status = 'normal';
+  saveData();
+  renderMain();
+  showToast('需求已恢复为正常上线', 'success');
+}
+
+function viewSqlOnly(windowId, reqId, sqlIdx) {
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  var r = (w.requirements || []).find(function(v) { return v.id === reqId; });
+  if (!r || !r.sqlFiles || !r.sqlFiles[sqlIdx]) return;
+  var sql = r.sqlFiles[sqlIdx];
+
+  document.getElementById('viewReqTitle').textContent = 'SQL — ' + sql.dbName + ' — ' + r.name;
+  var body = document.getElementById('viewReqBody');
+  body.innerHTML = '<div class="form-group"><label>数据库</label><input type="text" value="' + escHtml(sql.dbName) + '" readonly></div>'
+    + '<div class="form-group"><label>——查询 SQL脚本</label><textarea readonly rows="6" style="background:#1e1e1e;color:#d4d4d4">' + escHtml(sql.query || '(空)') + '</textarea></div>'
+    + '<div class="form-group"><label>——执行 SQL脚本</label><textarea readonly rows="6" style="background:#1e1e1e;color:#d4d4d4">' + escHtml(sql.execute || '(空)') + '</textarea></div>'
+    + '<div class="form-group"><label>——回退 SQL脚本</label><textarea readonly rows="6" style="background:#1e1e1e;color:#d4d4d4">' + escHtml(sql.rollback || '(空)') + '</textarea></div>'
+    + '<button class="btn btn-sm btn-primary" onclick="downloadSqlById(\'' + windowId + '\',\'' + reqId + '\',' + sqlIdx + ')">下载SQL文件</button>';
+  document.getElementById('viewReqModal').classList.add('show');
+}
+
+// ========== SQL Download ==========
+function downloadSql(windowId, reqId, sqlIdx) {
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  var r = (w.requirements || []).find(function(v) { return v.id === reqId; });
+  if (!r || !r.sqlFiles || !r.sqlFiles[sqlIdx]) return;
+  var sql = r.sqlFiles[sqlIdx];
+  var content = '-- 数据库：' + sql.dbName + '\n-- 需求：' + r.name + '（' + r.number + '）\n-- 解决人：' + (r.resolver || '') + '\n-- 生成时间：' + new Date().toLocaleString() + '\n\n'
+    + '-- ========== 查询 ==========\n' + (sql.query || '-- (无)') + '\n\n'
+    + '-- ========== 执行 ==========\n' + (sql.execute || '-- (无)') + '\n\n'
+    + '-- ========== 回退 ==========\n' + (sql.rollback || '-- (无)') + '\n';
+  var filename = sql.dbName + r.name + '.sql';
+  var blob = new Blob(['﻿' + content], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('SQL文件已下载：' + filename, 'success');
+}
+
+function downloadSqlById(windowId, reqId, sqlIdx) { downloadSql(windowId, reqId, sqlIdx); }
+
+function downloadAllWindowSql(windowId) {
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+
+  var files = [];
+  (w.requirements || []).forEach(function(r) {
+    (r.sqlFiles || []).forEach(function(s) {
+      var content = '-- 数据库：' + s.dbName + '\n-- 需求：' + r.name + '（' + r.number + '）\n-- 解决人：' + (r.resolver || '') + '\n-- 生成时间：' + new Date().toLocaleString() + '\n\n'
+        + '-- ========== 查询 ==========\n' + (s.query || '-- (无)') + '\n\n'
+        + '-- ========== 执行 ==========\n' + (s.execute || '-- (无)') + '\n\n'
+        + '-- ========== 回退 ==========\n' + (s.rollback || '-- (无)') + '\n';
+      var filename = s.dbName + r.name + '.sql';
+      files.push({ name: filename, data: content });
+    });
+  });
+
+  if (!files.length) { showToast('该窗口无SQL文件', 'error'); return; }
+
+  var zip = createZip(files);
+  var blob = new Blob([zip], { type: 'application/zip' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '投产窗口_' + w.date + '_SQL.zip';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('已下载 ' + files.length + ' 个SQL文件压缩包', 'success');
+}
+
+// minimal zip creator (no external libs)
+function createZip(files) {
+  var encoder = new TextEncoder();
+  var localHeaders = [];
+  var centralHeaders = [];
+  var offset = 0;
+
+  files.forEach(function(f) {
+    var nameBytes = encoder.encode(f.name);
+    var dataBytes = encoder.encode('﻿' + f.data); // UTF-8 BOM
+    var crc = crc32(dataBytes);
+    var compressed = dataBytes; // store (no compression)
+
+    // Local file header
+    var local = new Uint8Array(30 + nameBytes.length + compressed.length);
+    var v = new DataView(local.buffer);
+    v.setUint32(0, 0x04034b50, true);  // signature
+    v.setUint16(4, 20, true);          // version needed
+    v.setUint16(6, 0x0800, true);      // flags (UTF-8)
+    v.setUint16(8, 0, true);           // method (store)
+    v.setUint32(10, 0, true);          // mod time (unused)
+    v.setUint32(14, crc, true);        // crc32
+    v.setUint32(18, compressed.length, true);  // compressed size
+    v.setUint32(22, dataBytes.length, true);   // uncompressed size
+    v.setUint16(26, nameBytes.length, true);    // filename length
+    v.setUint16(28, 0, true);          // extra field length
+    local.set(nameBytes, 30);
+    local.set(compressed, 30 + nameBytes.length);
+    localHeaders.push(local);
+
+    // Central directory entry
+    var central = new Uint8Array(46 + nameBytes.length);
+    var cv = new DataView(central.buffer);
+    cv.setUint32(0, 0x02014b50, true);  // signature
+    cv.setUint16(4, 20, true);
+    cv.setUint16(6, 20, true);
+    cv.setUint16(8, 0x0800, true);
+    cv.setUint16(10, 0, true);
+    cv.setUint32(12, 0, true);
+    cv.setUint32(16, crc, true);
+    cv.setUint32(20, compressed.length, true);
+    cv.setUint32(24, dataBytes.length, true);
+    cv.setUint16(28, nameBytes.length, true);
+    cv.setUint16(30, 0, true);
+    cv.setUint16(32, 0, true);
+    cv.setUint16(34, 0, true);
+    cv.setUint32(38, 0, true);
+    cv.setUint32(42, offset, true);
+    central.set(nameBytes, 46);
+    centralHeaders.push(central);
+
+    offset += local.length;
+  });
+
+  // End of central directory
+  var centralOffset = offset;
+  var centralSize = centralHeaders.reduce(function(s, c) { return s + c.length; }, 0);
+  var eocd = new Uint8Array(22);
+  var ev = new DataView(eocd.buffer);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(4, 0, true);
+  ev.setUint16(6, 0, true);
+  ev.setUint16(8, files.length, true);
+  ev.setUint16(10, files.length, true);
+  ev.setUint32(12, centralSize, true);
+  ev.setUint32(16, centralOffset, true);
+  ev.setUint16(20, 0, true);
+
+  // Concatenate
+  var total = offset + centralSize + 22;
+  var result = new Uint8Array(total);
+  var pos = 0;
+  localHeaders.forEach(function(l) { result.set(l, pos); pos += l.length; });
+  centralHeaders.forEach(function(c) { result.set(c, pos); pos += c.length; });
+  result.set(eocd, pos);
+  return result;
+}
+
+// CRC32 implementation
+var crcTable = [];
+(function() {
+  for (var n = 0; n < 256; n++) {
+    var c = n;
+    for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    crcTable[n] = c;
+  }
+})();
+function crc32(data) {
+  var crc = 0xFFFFFFFF;
+  for (var i = 0; i < data.length; i++) crc = crcTable[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+// ========== GitHub Integration ==========
+function toggleSettings() {
+  document.getElementById('settingsModal').classList.add('show');
+  document.getElementById('gitProvider').value = gitConfig.provider || 'github';
+  document.getElementById('gitlabHost').value = (gitConfig.gitlab && gitConfig.gitlab.host) || '';
+  document.getElementById('gitToken').value = gitConfig.github.token || gitConfig.gitlab.token || '';
+  toggleGitFields();
+}
+function toggleGitFields() {
+  document.getElementById('gitlabFields').style.display = document.getElementById('gitProvider').value === 'gitlab' ? '' : 'none';
+}
+function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
+function saveSettings() {
+  var provider = document.getElementById('gitProvider').value;
+  var token = document.getElementById('gitToken').value.trim();
+  if (!gitConfig.gitlab) gitConfig.gitlab = { host: '', token: '' };
+  if (!gitConfig.github) gitConfig.github = { owner: '', repo: '', token: '' };
+  gitConfig.provider = provider;
+  if (provider === 'gitlab') gitConfig.gitlab.host = document.getElementById('gitlabHost').value.trim();
+  gitConfig.github.token = token;
+  gitConfig.gitlab.token = token;
+  saveGitConfig(gitConfig);
+  closeSettings();
+  showToast('Git 配置已保存', 'success');
+}
+
+async function fetchRepos() {
+  var provider = gitConfig.provider || 'github';
+  var isGithub = provider === 'github';
+  var token = isGithub ? (gitConfig.github && gitConfig.github.token) : (gitConfig.gitlab && gitConfig.gitlab.token);
+  if (!token) { showToast('请先在设置中配置 Token', 'error'); return; }
+  if (!isGithub && (!gitConfig.gitlab || !gitConfig.gitlab.host)) { showToast('请先在设置中配置GitLab地址', 'error'); return; }
+
+  var statusEl = document.getElementById('repoFetchStatus');
+  statusEl.textContent = '正在获取项目列表...';
+  try {
+    var allRepos = [], page = 1;
+    while (page <= 10) {
+      var url, resp;
+      if (isGithub) {
+        url = 'https://api.github.com/user/repos?per_page=100&page=' + page + '&sort=updated';
+        resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' } });
+      } else {
+        var host = gitConfig.gitlab.host.replace(/\/+$/, '');
+        url = host + '/api/v4/projects?membership=true&per_page=100&page=' + page;
+        resp = await fetch(url, { headers: { 'PRIVATE-TOKEN': token } });
+      }
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      var items = await resp.json();
+      if (!items.length) break;
+      allRepos = allRepos.concat(items);
+      if (items.length < 100) break;
+      page++;
+    }
+    if (isGithub) {
+      githubRepos = allRepos.map(function(r) { return { full_name: r.full_name, name: r.name }; }).sort(function(a, b) { return a.name.localeCompare(b.name); });
+    } else {
+      githubRepos = allRepos.map(function(r) { return { full_name: String(r.id), name: r.path_with_namespace || r.name }; }).sort(function(a, b) { return a.name.localeCompare(b.name); });
+    }
+    statusEl.textContent = '已加载 ' + githubRepos.length + ' 个项目';
+    showToast('已获取 ' + githubRepos.length + ' 个项目', 'success');
+    refreshAllModuleRepoSelects();
+  } catch (err) {
+    statusEl.textContent = '获取失败';
+    showToast('获取项目列表失败：' + err.message, 'error');
+  }
+}
+
+function refreshAllModuleRepoSelects() {
+  suppressRepoChange = true;
+  document.querySelectorAll('#modulesContainer .form-row').forEach(function(row) {
+    var selects = row.querySelectorAll('select');
+    if (selects.length >= 2) {
+      var curRepo = selects[0].value, curBranch = selects[1].value;
+      var repoHtml = '<option value="">-- 选择项目 --</option>';
+      githubRepos.forEach(function(r) {
+        repoHtml += '<option value="' + escHtml(r.full_name) + '"' + (r.full_name === curRepo ? ' selected' : '') + '>' + escHtml(r.name) + '</option>';
+      });
+      selects[0].innerHTML = repoHtml;
+      var cached = branchCache[curRepo];
+      if (cached && cached.length) {
+        selects[1].innerHTML = '<option value="">-- 选择分支 --</option>' + cached.map(function(b) {
+          return '<option value="' + escHtml(b.name) + '"' + (curBranch === b.name ? ' selected' : '') + '>' + escHtml(b.name) + '</option>';
+        }).join('');
+      } else if (curBranch) {
+        selects[1].innerHTML = '<option value="' + escHtml(curBranch) + '" selected>' + escHtml(curBranch) + '</option>';
+      }
+    }
+  });
+  suppressRepoChange = false;
+}
+
+async function onModuleRepoChange(idx) {
+  if (suppressRepoChange) return;
+  var sel = document.getElementById('modName' + idx);
+  var repoFull = sel ? sel.value : '';
+  var branchSel = document.getElementById('modBranch' + idx);
+  if (!repoFull) { if (branchSel) branchSel.innerHTML = '<option value="">-- 选择项目 --</option>'; return; }
+
+  if (branchCache[repoFull]) {
+    if (branchSel) branchSel.innerHTML = buildBranchOptionsForForm(repoFull);
+    return;
+  }
+
+  if (branchSel) { branchSel.innerHTML = '<option value="">正在加载...</option>'; branchSel.disabled = true; }
+
+  if (!branchLoading[repoFull]) {
+    branchLoading[repoFull] = loadBranchesForRepo(repoFull).then(function(b) { branchCache[repoFull] = b; delete branchLoading[repoFull]; return b; }).catch(function(e) { delete branchLoading[repoFull]; throw e; });
+  }
+
+  try {
+    var branches = await branchLoading[repoFull];
+    if (branchSel) { branchSel.innerHTML = buildBranchOptionsForForm(repoFull); branchSel.disabled = false; }
+  } catch (err) {
+    if (branchSel) { branchSel.innerHTML = '<option value="">' + err.message + '</option>'; branchSel.disabled = false; }
+    showToast('分支加载失败：' + err.message, 'error');
+  }
+}
+
+async function loadBranchesForRepo(repoFull) {
+  var provider = gitConfig.provider || 'github';
+  var isGithub = provider === 'github';
+  var token = isGithub ? (gitConfig.github && gitConfig.github.token) : (gitConfig.gitlab && gitConfig.gitlab.token);
+  if (!token) throw new Error('未配置 Token');
+
+  var url;
+  if (isGithub) {
+    var parts = repoFull.split('/');
+    url = 'https://api.github.com/repos/' + encodeURIComponent(parts[0]) + '/' + encodeURIComponent(parts[1] || '') + '/branches?per_page=100';
+  } else {
+    var host = gitConfig.gitlab.host.replace(/\/+$/, '');
+    url = host + '/api/v4/projects/' + encodeURIComponent(repoFull) + '/repository/branches?per_page=100';
+  }
+
+  var headers = isGithub
+    ? { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
+    : { 'PRIVATE-TOKEN': token };
+
+  var resp = await fetch(url, { headers: headers });
+  if (resp.status === 401) throw new Error('Token无效或无权访问');
+  if (resp.status === 404) throw new Error('仓库不存在或无权限');
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  return await resp.json();
+}
+
+// ========== Init ==========
+function initUI() {
+  var modeBadge = document.getElementById('modeBadge');
+  if (isServerMode) {
+    modeBadge.textContent = '共享';
+    modeBadge.className = 'mode-badge shared';
+  } else {
+    modeBadge.textContent = '本地';
+    modeBadge.className = 'mode-badge local';
+  }
+  if (data.years.length > 0) {
+    data.years.forEach(function(y) { expandedYears[y] = true; });
+    currentYear = data.years[data.years.length - 1];
+    var yw = data.windows.filter(function(w) { return w.year === currentYear; });
+    if (yw.length > 0) selectedWindowId = yw[yw.length - 1].id;
+  }
+  renderSidebar();
+  renderMain();
+}
+
+loadGitConfig();
+loadData();
+</script>
+</body>
+</html>
