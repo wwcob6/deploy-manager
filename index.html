@@ -328,13 +328,23 @@ function saveData() {
   }
 }
 
-function loadGitConfig() {
-  var raw = localStorage.getItem('deploy_manager_git');
-  if (raw) gitConfig = JSON.parse(raw);
+function loadGitConfig(cb) {
+  if (isServerMode) {
+    fetch(API_BASE + '/api/git').then(function(r){return r.json()}).then(function(cfg){
+      gitConfig = cfg || { provider: 'github', gitlab: { host: '', token: '' }, github: { owner: '', repo: '', token: '' } };
+      if (cb) cb();
+    }).catch(function(e){ if (cb) cb(); });
+  } else {
+    try { var r = localStorage.getItem('deploy_manager_git'); if (r) gitConfig = JSON.parse(r); } catch(e) {}
+    if (cb) cb();
+  }
 }
-
 function saveGitConfig(cfg) {
   gitConfig = cfg;
+  if (isServerMode) {
+    fetch(API_BASE + '/api/git', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg) })
+      .catch(function(e){});
+  }
   localStorage.setItem('deploy_manager_git', JSON.stringify(cfg));
 }
 
@@ -1252,8 +1262,9 @@ function initUI() {
   renderMain();
 }
 
-loadGitConfig();
-loadData();
+loadGitConfig(function() {
+  loadData();
+});
 </script>
 </body>
 </html>
