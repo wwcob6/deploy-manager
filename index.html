@@ -117,6 +117,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .branch-link { color:var(--primary); text-decoration:none; cursor:pointer; }
 .branch-link:hover { text-decoration:underline; }
 
+/* API editor */
+.api-editor-block { background:#f8f9fa; border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:12px; }
+.api-editor-block .api-field-row { display:flex; gap:8px; margin-bottom:8px; }
+.api-editor-block .api-field-row .form-group { flex:1; margin-bottom:0; }
+.api-editor-block .api-field-row .form-group.short { flex:0 0 140px; }
+.api-editor-block textarea { font-family:"SF Mono","Menlo","Consolas",monospace; font-size:12px; background:#1e1e1e; color:#d4d4d4; min-height:60px; }
+
 /* Status tags */
 .status-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
 .status-tag { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; white-space: nowrap; }
@@ -635,7 +642,8 @@ function renderMain() {
       var uid = 'r' + r.id;
       var reviewTag = r.reviewStatus === '已评审' ? 'ok' : r.reviewStatus === '未评审' ? 'bad' : 'warn';
       var reviewText = r.reviewStatus === '其他' ? (r.reviewStatusNote || '其他') : r.reviewStatus;
-      var hasDetail = (r.modules && r.modules.length > 0) || (r.sqlFiles && r.sqlFiles.length > 0);
+      var hasApis = r.apis && r.apis.length > 0;
+      var hasDetail = (r.modules && r.modules.length > 0) || (r.sqlFiles && r.sqlFiles.length > 0) || hasApis;
 
       var rowClick = hasDetail ? ' onclick="toggleReqRow(\'' + uid + '\')" style="cursor:pointer"' : '';
       html += '<tr class="normal-row" id="' + uid + '"' + rowClick + '>'
@@ -674,6 +682,16 @@ function renderMain() {
             html += '<tr><td><code>' + escHtml(fn) + '</code></td><td>' + escHtml(s.dbName) + '</td><td style="white-space:nowrap">'
               + '<button class="btn btn-xs" onclick="viewSqlOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看SQL</button> '
               + '<button class="btn btn-xs btn-primary" onclick="downloadSqlById(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载</button></td></tr>';
+          });
+          html += '</tbody></table></div>';
+        }
+        if (hasApis) {
+          html += '<div class="detail-section"><div class="detail-section-title">&#128268; API</div>'
+            + '<table class="mini-table"><thead><tr><th>API</th><th>版本</th><th>接入方式</th><th>操作</th></tr></thead><tbody>';
+          r.apis.forEach(function(a, i) {
+            html += '<tr><td>' + escHtml(a.apiName || '-') + '</td><td>' + escHtml(a.apiVersion || '-') + '</td><td>' + escHtml(a.accessMethod || '-') + '</td>'
+              + '<td style="white-space:nowrap"><button class="btn btn-xs" onclick="viewRequirement(\'' + win.id + '\',\'' + r.id + '\')">查看</button> '
+              + '<button class="btn btn-xs btn-primary" onclick="downloadApiTxt(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载TXT</button></td></tr>';
           });
           html += '</tbody></table></div>';
         }
@@ -740,6 +758,23 @@ function viewRequirement(windowId, reqId) {
     + '<div class="form-row"><div class="form-group"><label>解决人</label><input type="text" value="' + escHtml(r.resolver || '-') + '" readonly></div>'
     + '<div class="form-group"><label>业务人员</label><input type="text" value="' + escHtml(r.businessPerson || '-') + '" readonly></div></div>'
     + (modsHtml ? '<div class="section-title">&#128736; 涉及代码模块与开发分支</div>' + modsHtml : '')
+    + '<div class="section-title">&#128268; API</div>'
+    + (r.apis && r.apis.length ? r.apis.map(function(a, i) {
+        return '<div class="sql-editor-block"><div style="display:flex;justify-content:space-between;margin-bottom:6px">'
+          + '<h4 style="margin:0;font-size:13px;color:var(--primary)">API #' + (i+1) + ' &mdash; ' + escHtml(a.apiName || '') + '</h4>'
+          + '<button class="btn btn-xs btn-primary" onclick="downloadApiTxt(\'' + windowId + '\',\'' + reqId + '\',' + i + ')">下载TXT</button></div>'
+          + '<div class="form-row"><div class="form-group"><label>API</label><input value="' + escHtml(a.apiName || '') + '" readonly></div>'
+          + '<div class="form-group"><label>API分组</label><input value="' + escHtml(a.apiGroup || '') + '" readonly></div>'
+          + '<div class="form-group"><label>API版本</label><input value="' + escHtml(a.apiVersion || '') + '" readonly></div></div>'
+          + '<div class="form-row"><div class="form-group"><label>简介</label><input value="' + escHtml(a.description || '') + '" readonly></div></div>'
+          + '<div class="form-row"><div class="form-group"><label>接入方式</label><input value="' + escHtml(a.accessMethod || '') + '" readonly></div>'
+          + '<div class="form-group"><label>应用名</label><input value="' + escHtml(a.appName || '') + '" readonly></div></div>'
+          + '<div class="form-row"><div class="form-group"><label>接出模板</label><input value="' + escHtml(a.outTemplate || '') + '" readonly></div>'
+          + '<div class="form-group"><label>接出实例</label><input value="' + escHtml(a.outInstance || '') + '" readonly></div>'
+          + '<div class="form-group"><label>资源路径</label><input value="' + escHtml(a.resourcePath || '') + '" readonly></div>'
+          + '<div class="form-group"><label>drs服务类型</label><input value="' + escHtml(a.drsServiceType || '') + '" readonly></div></div>'
+          + '<div class="form-group"><label>报文转换</label><textarea readonly rows="3" style="background:#1e1e1e;color:#d4d4d4">' + escHtml(a.messageTransform || '(空)') + '</textarea></div></div>';
+      }).join('') : '<p style="color:#999;font-size:13px">暂无API</p>')
     + '<div class="section-title">&#128451; SQL 脚本</div>' + sqlHtml
     + '<div class="section-title">&#128203; 报告与评审</div>'
     + '<div class="status-tags" style="margin-bottom:12px">'
@@ -820,6 +855,7 @@ function buildReqForm(req) {
     + '<div class="section-title">&#128451; SQL 文件</div>'
     + '<div id="sqlContainer">' + (sqlRows || '<p style="color:#999;font-size:12px;">暂无SQL文件</p>') + '</div>'
     + '<button class="btn btn-sm" style="margin-top:8px" onclick="addSqlFile()">+ 添加SQL文件</button>'
+    + renderApiSection(req)
     + '<div class="section-title">&#128203; 报告与评审</div>'
     + '<div class="form-row"><div class="form-group"><label>SIT 测试报告</label><select id="reqSitReport"><option value="0"' + (req && !req.sitReport ? ' selected' : '') + '>未收集</option><option value="1"' + (req && req.sitReport ? ' selected' : '') + '>已收集</option></select></div>'
     + '<div class="form-group"><label>UAT 测试报告</label><select id="reqUatReport"><option value="0"' + (req && !req.uatReport ? ' selected' : '') + '>未收集</option><option value="1"' + (req && req.uatReport ? ' selected' : '') + '>已收集</option></select></div></div>'
@@ -877,6 +913,42 @@ function addModuleRow() {
   container.appendChild(row);
 }
 
+var apiCounter = 0;
+
+function renderApiSection(req) {
+  var apis = req ? (req.apis || []) : [];
+  var rows = apis.map(function(a, i) { return buildApiEditor(i, a); }).join('');
+  return '<div class="section-title">&#128268; API</div>'
+    + '<div id="apiContainer">' + (rows || '<p style="color:#999;font-size:12px;">暂无API</p>') + '</div>'
+    + '<button class="btn btn-sm" style="margin-top:8px" onclick="addApiItem()">+ 添加API</button>';
+}
+
+function buildApiEditor(index, api) {
+  var a = api || {};
+  return '<div class="api-editor-block" id="apiBlock' + index + '">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    + '<strong style="font-size:13px;color:var(--primary)">API #' + (index+1) + '</strong>'
+    + '<button class="btn btn-xs btn-danger" onclick="document.getElementById(\'apiBlock' + index + '\').remove()">&#10005; 删除</button></div>'
+    + '<div class="api-field-row"><div class="form-group short"><label>API</label><input type="text" id="apiName' + index + '" value="' + escHtml(a.apiName || '') + '"></div>'
+    + '<div class="form-group short"><label>API分组</label><input type="text" id="apiGroup' + index + '" value="' + escHtml(a.apiGroup || '') + '"></div>'
+    + '<div class="form-group short"><label>API版本</label><input type="text" id="apiVersion' + index + '" value="' + escHtml(a.apiVersion || '') + '"></div>'
+    + '<div class="form-group"><label>简介</label><input type="text" id="apiDesc' + index + '" value="' + escHtml(a.description || '') + '"></div></div>'
+    + '<div class="api-field-row"><div class="form-group"><label>接入方式</label><input type="text" id="apiAccessMethod' + index + '" value="' + escHtml(a.accessMethod || '') + '"></div>'
+    + '<div class="form-group"><label>应用名</label><input type="text" id="apiAppName' + index + '" value="' + escHtml(a.appName || '') + '"></div></div>'
+    + '<div class="api-field-row"><div class="form-group short"><label>接出模板</label><input type="text" id="apiOutTemplate' + index + '" value="' + escHtml(a.outTemplate || '') + '"></div>'
+    + '<div class="form-group short"><label>接出实例</label><input type="text" id="apiOutInstance' + index + '" value="' + escHtml(a.outInstance || '') + '"></div>'
+    + '<div class="form-group"><label>资源路径</label><input type="text" id="apiResourcePath' + index + '" value="' + escHtml(a.resourcePath || '') + '"></div>'
+    + '<div class="form-group short"><label>drs服务类型</label><input type="text" id="apiDrsType' + index + '" value="' + escHtml(a.drsServiceType || '') + '"></div></div>'
+    + '<div class="form-group"><label>报文转换</label><textarea id="apiMsgTransform' + index + '" rows="3" placeholder="报文转换内容...">' + escHtml(a.messageTransform || '') + '</textarea></div>'
+    + '</div>';
+}
+
+function addApiItem() {
+  var c = document.getElementById('apiContainer'), p = c.querySelector('p'); if (p) p.remove();
+  var i = apiCounter++;
+  var b = document.createElement('div'); b.id = 'apiBlock' + i; b.innerHTML = buildApiEditor(i, null); c.appendChild(b);
+}
+
 function addSqlFile() {
   var container = document.getElementById('sqlContainer');
   var p = container.querySelector('p'); if (p) p.remove();
@@ -923,13 +995,35 @@ function collectReqForm() {
     }
   });
 
+  // collect APIs
+  var apis = [];
+  document.querySelectorAll('#apiContainer .api-editor-block').forEach(function(block) {
+    var inputs = block.querySelectorAll('input');
+    var ta = block.querySelector('textarea');
+    if (inputs.length >= 9) {
+      apis.push({
+        apiName: inputs[0].value.trim(),
+        apiGroup: inputs[1].value.trim(),
+        apiVersion: inputs[2].value.trim(),
+        description: inputs[3].value.trim(),
+        accessMethod: inputs[4].value.trim(),
+        appName: inputs[5].value.trim(),
+        outTemplate: inputs[6].value.trim(),
+        outInstance: inputs[7].value.trim(),
+        resourcePath: inputs[8].value.trim(),
+        drsServiceType: inputs[9] ? inputs[9].value.trim() : '',
+        messageTransform: ta ? ta.value.trim() : ''
+      });
+    }
+  });
+
   var statusEl = document.getElementById('reqStatus');
   return {
     id: editingReqId || genId(),
     name: name, number: number,
     resolver: document.getElementById('reqResolver').value.trim(),
     businessPerson: document.getElementById('reqBizPerson').value.trim(),
-    modules: modules, sqlFiles: sqlFiles,
+    modules: modules, sqlFiles: sqlFiles, apis: apis,
     sitReport: document.getElementById('reqSitReport').value === '1',
     uatReport: document.getElementById('reqUatReport').value === '1',
     reviewStatus: document.getElementById('reqReviewStatus').value,
@@ -960,7 +1054,7 @@ async function saveRequirement() {
 function closeReqModal() {
   document.getElementById('reqModal').classList.remove('show');
   editingReqId = null; editingReqWindowId = null;
-  moduleCounter = 0; sqlCounter = 0; branchLoading = {};
+  moduleCounter = 0; sqlCounter = 0; apiCounter = 0; branchLoading = {};
 }
 
 async function deleteRequirement(windowId, reqId) {
@@ -1023,6 +1117,32 @@ function downloadSql(windowId, reqId, sqlIdx) {
 
 function downloadSqlById(windowId, reqId, sqlIdx) { downloadSql(windowId, reqId, sqlIdx); }
 
+function downloadApiTxt(windowId, reqId, apiIdx) {
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  var r = (w.requirements || []).find(function(v) { return v.id === reqId; });
+  if (!r || !r.apis || !r.apis[apiIdx]) return;
+  var a = r.apis[apiIdx];
+  var content = 'API: ' + (a.apiName || '') + '\r\n'
+    + 'API分组: ' + (a.apiGroup || '') + '\r\n'
+    + 'API版本: ' + (a.apiVersion || '') + '\r\n'
+    + '简介: ' + (a.description || '') + '\r\n'
+    + '接入方式: ' + (a.accessMethod || '') + '\r\n'
+    + '应用名: ' + (a.appName || '') + '\r\n'
+    + '接出模板: ' + (a.outTemplate || '') + '\r\n'
+    + '接出实例: ' + (a.outInstance || '') + '\r\n'
+    + '资源路径: ' + (a.resourcePath || '') + '\r\n'
+    + 'drs服务类型: ' + (a.drsServiceType || '') + '\r\n'
+    + '报文转换: ' + (a.messageTransform || '') + '\r\n';
+  var fn = (a.apiName || 'api') + '_' + (a.apiVersion || '') + '.txt';
+  var blob = new Blob(['﻿' + content], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = fn;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('API文件已下载：' + fn, 'success');
+}
+
 function downloadAllWindowSql(windowId) {
   var w = data.windows.find(function(v) { return v.id === windowId; });
   if (!w) return;
@@ -1037,7 +1157,21 @@ function downloadAllWindowSql(windowId) {
       var filename = s.dbName + r.name + '.sql';
       files.push({ name: filename, data: content });
     });
-  });
+    (r.apis || []).forEach(function(a) {
+      var content = 'API: ' + (a.apiName || '') + '\r\n'
+        + 'API分组: ' + (a.apiGroup || '') + '\r\n'
+        + 'API版本: ' + (a.apiVersion || '') + '\r\n'
+        + '简介: ' + (a.description || '') + '\r\n'
+        + '接入方式: ' + (a.accessMethod || '') + '\r\n'
+        + '应用名: ' + (a.appName || '') + '\r\n'
+        + '接出模板: ' + (a.outTemplate || '') + '\r\n'
+        + '接出实例: ' + (a.outInstance || '') + '\r\n'
+        + '资源路径: ' + (a.resourcePath || '') + '\r\n'
+        + 'drs服务类型: ' + (a.drsServiceType || '') + '\r\n'
+        + '报文转换: ' + (a.messageTransform || '') + '\r\n';
+      var fn = (a.apiName || 'api') + '_' + (a.apiVersion || '') + '.txt';
+      files.push({ name: fn, data: content });
+    });
 
   if (!files.length) { showToast('该窗口无SQL文件', 'error'); return; }
 
