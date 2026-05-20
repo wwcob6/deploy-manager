@@ -255,7 +255,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
     <div class="modal-body"><div class="form-group"><label>投产日期 *</label><input type="text" id="winDate" placeholder="格式：20260531" maxlength="8"></div></div>
     <div class="modal-footer">
       <button class="btn" onclick="closeWindowModal()">取消</button>
-      <button class="btn btn-danger btn-sm" id="btnDeleteWindow" style="margin-right:auto; display:none" onclick="deleteWindow()">删除此窗口</button>
       <button class="btn btn-primary" id="btnSaveWindow" onclick="saveWindow()">保存</button>
     </div>
   </div>
@@ -513,7 +512,6 @@ function openWindowModal(editId) {
   editingWindowId = editId || null;
   document.getElementById('windowModal').classList.add('show');
   document.getElementById('windowModalTitle').textContent = editId ? '编辑投产窗口' : '新建投产窗口';
-  document.getElementById('btnDeleteWindow').style.display = editId ? '' : 'none';
   if (editId) {
     var w = data.windows.find(function(v) { return v.id === editId; });
     if (w) document.getElementById('winDate').value = w.date;
@@ -773,7 +771,7 @@ function viewRequirement(windowId, reqId) {
           + '<div class="form-group"><label>接出实例</label><input value="' + escHtml(a.outInstance || '') + '" readonly></div>'
           + '<div class="form-group"><label>资源路径</label><input value="' + escHtml(a.resourcePath || '') + '" readonly></div>'
           + '<div class="form-group"><label>drs服务类型</label><input value="' + escHtml(a.drsServiceType || '') + '" readonly></div></div>'
-          + '<div class="form-group"><label>报文转换</label><textarea readonly rows="3" style="background:#1e1e1e;color:#d4d4d4">' + escHtml(a.messageTransform || '(空)') + '</textarea></div></div>';
+          + '<div class="form-group"><label>报文转换</label><input type="text" value="' + escHtml(a.messageTransform || '') + '" readonly></div></div>';
       }).join('') : '<p style="color:#999;font-size:13px">暂无API</p>')
     + '<div class="section-title">&#128451; SQL 脚本</div>' + sqlHtml
     + '<div class="section-title">&#128203; 报告与评审</div>'
@@ -939,7 +937,7 @@ function buildApiEditor(index, api) {
     + '<div class="form-group short"><label>接出实例</label><input type="text" id="apiOutInstance' + index + '" value="' + escHtml(a.outInstance || '') + '"></div>'
     + '<div class="form-group"><label>资源路径</label><input type="text" id="apiResourcePath' + index + '" value="' + escHtml(a.resourcePath || '') + '"></div>'
     + '<div class="form-group short"><label>drs服务类型</label><input type="text" id="apiDrsType' + index + '" value="' + escHtml(a.drsServiceType || '') + '"></div></div>'
-    + '<div class="form-group"><label>报文转换</label><textarea id="apiMsgTransform' + index + '" rows="3" placeholder="报文转换内容...">' + escHtml(a.messageTransform || '') + '</textarea></div>'
+    + '<div class="form-group"><label>报文转换</label><input type="text" id="apiMsgTransform' + index + '" value="' + escHtml(a.messageTransform || '') + '" placeholder="报文转换内容..."></div>'
     + '</div>';
 }
 
@@ -999,8 +997,7 @@ function collectReqForm() {
   var apis = [];
   document.querySelectorAll('#apiContainer .api-editor-block').forEach(function(block) {
     var inputs = block.querySelectorAll('input');
-    var ta = block.querySelector('textarea');
-    if (inputs.length >= 9) {
+    if (inputs.length >= 10) {
       apis.push({
         apiName: inputs[0].value.trim(),
         apiGroup: inputs[1].value.trim(),
@@ -1012,7 +1009,7 @@ function collectReqForm() {
         outInstance: inputs[7].value.trim(),
         resourcePath: inputs[8].value.trim(),
         drsServiceType: inputs[9] ? inputs[9].value.trim() : '',
-        messageTransform: ta ? ta.value.trim() : ''
+        messageTransform: inputs[10] ? inputs[10].value.trim() : ''
       });
     }
   });
