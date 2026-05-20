@@ -1173,6 +1173,7 @@ function downloadAllWindowSql(windowId) {
       files.push({ name: fn, data: content });
     });
 
+  });
   if (!files.length) { showToast('该窗口无SQL文件', 'error'); return; }
 
   var zip = createZip(files);
