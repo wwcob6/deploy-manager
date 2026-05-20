@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -92,20 +93,24 @@ function providerToken(cfg) {
 }
 
 function requestJson(url, headers, cb) {
-    fetch(url, { headers })
-        .then(async resp => {
-            const body = await resp.text();
-            let data = null;
+    var mod = url.startsWith('https') ? https : http;
+    var req = mod.get(url, { headers: headers }, function(res) {
+        var body = '';
+        res.on('data', function(c) { body += c; });
+        res.on('end', function() {
+            var data = null;
             try { data = body ? JSON.parse(body) : null; } catch (e) {}
-            if (!resp.ok) {
-                const err = new Error('HTTP ' + resp.status);
-                err.status = resp.status;
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+                var err = new Error('HTTP ' + res.statusCode);
+                err.status = res.statusCode;
                 err.body = data;
-                throw err;
+                return cb(err);
             }
             cb(null, data);
-        })
-        .catch(cb);
+        });
+    });
+    req.on('error', cb);
+    req.setTimeout(15000, function() { req.destroy(); cb(new Error('请求超时')); });
 }
 
 const server = http.createServer((req, res) => {
