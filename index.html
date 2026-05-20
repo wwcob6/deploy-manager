@@ -392,11 +392,11 @@ function escHtml(s) {
   return d.innerHTML;
 }
 
-function getBranchUrl(moduleName, branch) {
+function getBranchUrl(moduleName, branch, moduleFullName) {
   if (!branch) return '';
   var provider = gitConfig.provider || 'github';
-  var fullName = moduleName;
-  if (githubRepos.length) {
+  var fullName = moduleFullName || moduleName;
+  if (!moduleFullName && githubRepos.length) {
     for (var i = 0; i < githubRepos.length; i++) {
       if (githubRepos[i].full_name === moduleName || githubRepos[i].name === moduleName) {
         fullName = githubRepos[i].full_name;
@@ -661,7 +661,7 @@ function renderMain() {
             + '<table class="mini-table"><thead><tr><th>模块</th><th>分支</th></tr></thead><tbody>';
           r.modules.forEach(function(m) {
             var dn = m.name.indexOf('/') > -1 ? m.name.split('/').pop() : m.name;
-            var url = getBranchUrl(m.name, m.branch);
+            var url = getBranchUrl(m.name, m.branch, m.full_name);
             html += '<tr><td>' + escHtml(dn) + '</td><td>' + (m.branch ? '<a class="branch-link" href="' + url + '" target="_blank" title="跳转到仓库分支">' + escHtml(m.branch) + '</a>' : '无分支') + '</td></tr>';
           });
           html += '</tbody></table></div>';
@@ -729,7 +729,7 @@ function viewRequirement(windowId, reqId) {
     modsHtml = '<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="border:1px solid var(--border);padding:6px 10px;text-align:left;background:#f5f6fa">代码模块</th><th style="border:1px solid var(--border);padding:6px 10px;text-align:left;background:#f5f6fa">开发分支</th></tr></thead><tbody>'
       + r.modules.map(function(m) {
           var dn = m.name.indexOf('/') > -1 ? m.name.split('/').pop() : m.name;
-          var url = getBranchUrl(m.name, m.branch);
+          var url = getBranchUrl(m.name, m.branch, m.full_name);
           return '<tr><td style="border:1px solid var(--border);padding:6px 10px">' + escHtml(dn) + '</td><td style="border:1px solid var(--border);padding:6px 10px">' + (m.branch ? '<a class="branch-link" href="' + url + '" target="_blank" title="跳转到仓库分支">' + escHtml(m.branch) + '</a>' : '无分支') + '</td></tr>';
         }).join('')
       + '</tbody></table>';
@@ -778,15 +778,17 @@ function buildReqForm(req) {
   var modRows = modules.map(function(m, i) {
     var repoHtml = '<option value="">-- 选择项目 --</option>';
     var found = false;
+    var repoKey = m.full_name || m.name;
     githubRepos.forEach(function(r) {
-      var sel = (r.full_name === m.name || r.name === m.name) ? ' selected' : '';
+      var sel = (r.full_name === repoKey || r.name === m.name) ? ' selected' : '';
       if (sel) found = true;
       repoHtml += '<option value="' + escHtml(r.full_name) + '"' + sel + '>' + escHtml(r.name) + '</option>';
     });
     if (m.name && !found) {
       repoHtml = '<option value="' + escHtml(m.name) + '" selected>' + escHtml(m.name) + ' (手动)</option>' + repoHtml;
     }
-    var branchOpts = buildBranchOptionsForForm(m.name, m.branch);
+    var repoFull = m.full_name || m.name;
+    var branchOpts = buildBranchOptionsForForm(repoFull, m.branch);
     return '<div class="form-row" style="margin-bottom:4px" id="modRow' + i + '">'
       + '<div class="form-group"><label>项目</label><select id="modName' + i + '" onchange="onModuleRepoChange(' + i + ')" style="width:100%">' + repoHtml + '</select></div>'
       + '<div class="form-group"><label>分支</label><select id="modBranch' + i + '" style="width:100%">' + branchOpts + '</select></div>'
@@ -896,9 +898,20 @@ function collectReqForm() {
   var modules = [];
   document.querySelectorAll('#modulesContainer .form-row').forEach(function(row) {
     var selects = row.querySelectorAll('select');
-    var mn = selects.length >= 1 ? selects[0].value.trim() : '';
+    var selVal = selects.length >= 1 ? selects[0].value.trim() : '';
     var mb = selects.length >= 2 ? selects[1].value.trim() : '';
-    if (mn) modules.push({ name: mn, branch: mb });
+    if (!selVal) return;
+    // resolve display name from githubRepos (GitLab stores project ID as value)
+    var displayName = selVal;
+    var apiId = selVal;
+    for (var j = 0; j < githubRepos.length; j++) {
+      if (githubRepos[j].full_name === selVal) {
+        displayName = githubRepos[j].name;
+        apiId = githubRepos[j].full_name;
+        break;
+      }
+    }
+    modules.push({ name: displayName, branch: mb, full_name: apiId });
   });
 
   var sqlFiles = [];
