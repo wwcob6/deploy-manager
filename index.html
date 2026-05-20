@@ -114,6 +114,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .mini-table th { background:#f0f1f5; font-weight:600; padding:6px 10px; text-align:left; font-size:11px; color:var(--text-secondary); }
 .mini-table td { padding:5px 10px; border-top:1px solid #eee; }
 .mini-table code { background:#edeffc; padding:1px 6px; border-radius:3px; font-size:11px; color:var(--primary); }
+.branch-link { color:var(--primary); text-decoration:none; cursor:pointer; }
+.branch-link:hover { text-decoration:underline; }
 
 /* Status tags */
 .status-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
@@ -390,6 +392,26 @@ function escHtml(s) {
   return d.innerHTML;
 }
 
+function getBranchUrl(moduleName, branch) {
+  if (!branch) return '';
+  var provider = gitConfig.provider || 'github';
+  var fullName = moduleName;
+  if (githubRepos.length) {
+    for (var i = 0; i < githubRepos.length; i++) {
+      if (githubRepos[i].full_name === moduleName || githubRepos[i].name === moduleName) {
+        fullName = githubRepos[i].full_name;
+        break;
+      }
+    }
+  }
+  if (provider === 'github') {
+    return 'https://github.com/' + fullName + '/tree/' + encodeURIComponent(branch);
+  } else {
+    var host = ((gitConfig.gitlab || {}).host || '').replace(/\/+$/, '');
+    return host + '/' + fullName + '/-/tree/' + encodeURIComponent(branch);
+  }
+}
+
 // ========== Sidebar ==========
 function renderSidebar() {
   var body = document.getElementById('sidebarBody');
@@ -639,7 +661,8 @@ function renderMain() {
             + '<table class="mini-table"><thead><tr><th>模块</th><th>分支</th></tr></thead><tbody>';
           r.modules.forEach(function(m) {
             var dn = m.name.indexOf('/') > -1 ? m.name.split('/').pop() : m.name;
-            html += '<tr><td>' + escHtml(dn) + '</td><td><code>' + (m.branch ? escHtml(m.branch) : '无分支') + '</code></td></tr>';
+            var url = getBranchUrl(m.name, m.branch);
+            html += '<tr><td>' + escHtml(dn) + '</td><td>' + (m.branch ? '<a class="branch-link" href="' + url + '" target="_blank" title="跳转到仓库分支">' + escHtml(m.branch) + '</a>' : '无分支') + '</td></tr>';
           });
           html += '</tbody></table></div>';
         }
@@ -706,7 +729,8 @@ function viewRequirement(windowId, reqId) {
     modsHtml = '<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="border:1px solid var(--border);padding:6px 10px;text-align:left;background:#f5f6fa">代码模块</th><th style="border:1px solid var(--border);padding:6px 10px;text-align:left;background:#f5f6fa">开发分支</th></tr></thead><tbody>'
       + r.modules.map(function(m) {
           var dn = m.name.indexOf('/') > -1 ? m.name.split('/').pop() : m.name;
-          return '<tr><td style="border:1px solid var(--border);padding:6px 10px">' + escHtml(dn) + '</td><td style="border:1px solid var(--border);padding:6px 10px">' + (m.branch ? escHtml(m.branch) : '无分支') + '</td></tr>';
+          var url = getBranchUrl(m.name, m.branch);
+          return '<tr><td style="border:1px solid var(--border);padding:6px 10px">' + escHtml(dn) + '</td><td style="border:1px solid var(--border);padding:6px 10px">' + (m.branch ? '<a class="branch-link" href="' + url + '" target="_blank" title="跳转到仓库分支">' + escHtml(m.branch) + '</a>' : '无分支') + '</td></tr>';
         }).join('')
       + '</tbody></table>';
   }
