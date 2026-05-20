@@ -408,7 +408,7 @@ function getBranchUrl(moduleName, branch, moduleFullName) {
     return 'https://github.com/' + fullName + '/tree/' + encodeURIComponent(branch);
   } else {
     var host = ((gitConfig.gitlab || {}).host || '').replace(/\/+$/, '');
-    return host + '/' + fullName + '/-/tree/' + encodeURIComponent(branch);
+    return host + '/' + moduleName + '/-/tree/' + encodeURIComponent(branch);
   }
 }
 
