@@ -571,8 +571,8 @@ function renderMain() {
   var allReqs = win.requirements || [];
 
   // count total SQLs
-  var totalSqls = 0;
-  allReqs.forEach(function(r) { totalSqls += (r.sqlFiles || []).length; });
+  var totalSqls = 0, totalApis = 0;
+  allReqs.forEach(function(r) { totalSqls += (r.sqlFiles || []).length; totalApis += (r.apis || []).length; });
   if (searchTerm) {
     allReqs = allReqs.filter(function(r) {
       return r.name.toLowerCase().indexOf(searchTerm) !== -1 || r.number.toLowerCase().indexOf(searchTerm) !== -1;
@@ -625,6 +625,7 @@ function renderMain() {
     + '</div>'
     + '<div style="display:flex;gap:6px">'
     + (totalSqls > 0 ? '<button class="btn btn-sm" onclick="downloadAllWindowSql(\'' + win.id + '\')">&#128229; 下载全部SQL (' + totalSqls + ')</button>' : '')
+    + (totalApis > 0 ? '<button class="btn btn-sm" onclick="downloadAllWindowApi(\'' + win.id + '\')">&#128229; 下载全部API (' + totalApis + ')</button>' : '')
     + '<button class="btn btn-sm btn-primary" onclick="openReqModal(\'' + win.id + '\')">+ 新建需求</button>'
     + '</div></div>'
     + '<div class="card-body" style="padding:0">';
@@ -688,7 +689,7 @@ function renderMain() {
             + '<table class="mini-table"><thead><tr><th>API</th><th>版本</th><th>接入方式</th><th>操作</th></tr></thead><tbody>';
           r.apis.forEach(function(a, i) {
             html += '<tr><td>' + escHtml(a.apiName || '-') + '</td><td>' + escHtml(a.apiVersion || '-') + '</td><td>' + escHtml(a.accessMethod || '-') + '</td>'
-              + '<td style="white-space:nowrap"><button class="btn btn-xs" onclick="viewRequirement(\'' + win.id + '\',\'' + r.id + '\')">查看</button> '
+              + '<td style="white-space:nowrap"><button class="btn btn-xs" onclick="viewApiOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看</button> '
               + '<button class="btn btn-xs btn-primary" onclick="downloadApiTxt(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载TXT</button></td></tr>';
           });
           html += '</tbody></table></div>';
@@ -1134,6 +1135,58 @@ function downloadApiTxt(windowId, reqId, apiIdx) {
   document.body.appendChild(a); a.click();
   document.body.removeChild(a); URL.revokeObjectURL(url);
   showToast('API文件已下载：' + fn, 'success');
+}
+
+function viewApiOnly(windowId, reqId, apiIdx) {
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  var r = (w.requirements || []).find(function(v) { return v.id === reqId; });
+  if (!r || !r.apis || !r.apis[apiIdx]) return;
+  var a = r.apis[apiIdx];
+  document.getElementById('viewReqTitle').textContent = 'API — ' + (a.apiName || '') + ' — ' + r.name;
+  var body = document.getElementById('viewReqBody');
+  body.innerHTML = '<div class="form-row"><div class="form-group"><label>API</label><input value="' + escHtml(a.apiName || '') + '" readonly></div>'
+    + '<div class="form-group"><label>API分组</label><input value="' + escHtml(a.apiGroup || '') + '" readonly></div>'
+    + '<div class="form-group"><label>API版本</label><input value="' + escHtml(a.apiVersion || '') + '" readonly></div></div>'
+    + '<div class="form-row"><div class="form-group"><label>简介</label><input value="' + escHtml(a.description || '') + '" readonly></div></div>'
+    + '<div class="form-row"><div class="form-group"><label>接入方式</label><input value="' + escHtml(a.accessMethod || 'REST接入') + '" readonly></div></div>'
+    + '<div class="form-row"><div class="form-group"><label>接出模板</label><input value="' + escHtml(a.outTemplate || '') + '" readonly></div>'
+    + '<div class="form-group"><label>接出实例</label><input value="' + escHtml(a.outInstance || '') + '" readonly></div>'
+    + '<div class="form-group"><label>资源路径</label><input value="' + escHtml(a.resourcePath || '') + '" readonly></div>'
+    + '<div class="form-group"><label>drs服务类型</label><input value="' + escHtml(a.drsServiceType || 'concentrated') + '" readonly></div></div>'
+    + '<div class="form-row"><div class="form-group"><label>报文转换</label><input value="' + escHtml(a.messageTransform || '禁用') + '" readonly></div></div>'
+    + '<button class="btn btn-sm btn-primary" onclick="downloadApiTxt(\'' + windowId + '\',\'' + reqId + '\',' + apiIdx + ')">下载TXT</button>';
+  document.getElementById('viewReqModal').classList.add('show');
+}
+
+function downloadAllWindowApi(windowId) {
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  var files = [];
+  (w.requirements || []).forEach(function(r) {
+    (r.apis || []).forEach(function(a) {
+      var content = 'API: ' + (a.apiName || '') + '\r\n'
+        + 'API分组: ' + (a.apiGroup || '') + '\r\n'
+        + 'API版本: ' + (a.apiVersion || '') + '\r\n'
+        + '简介: ' + (a.description || '') + '\r\n'
+        + '接入方式: ' + (a.accessMethod || '') + '\r\n'
+        + '接出模板: ' + (a.outTemplate || '') + '\r\n'
+        + '接出实例: ' + (a.outInstance || '') + '\r\n'
+        + '资源路径: ' + (a.resourcePath || '') + '\r\n'
+        + 'drs服务类型: ' + (a.drsServiceType || '') + '\r\n'
+        + '报文转换: ' + (a.messageTransform || '') + '\r\n';
+      files.push({ name: (a.apiName || 'api') + '_' + (a.apiVersion || '') + '.txt', data: content });
+    });
+  });
+  if (!files.length) { showToast('该窗口无API', 'error'); return; }
+  var zip = createZip(files);
+  var blob = new Blob([zip], { type: 'application/zip' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = '投产窗口_' + w.date + '_API.zip';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('已下载 ' + files.length + ' 个API文件压缩包', 'success');
 }
 
 function downloadAllWindowSql(windowId) {
