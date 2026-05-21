@@ -570,15 +570,15 @@ function renderMain() {
   var searchTerm = searchEl ? searchEl.value.trim().toLowerCase() : '';
   var allReqs = win.requirements || [];
 
-  // count total SQLs
-  var totalSqls = 0, totalApis = 0;
-  normalReqs.forEach(function(r) { totalSqls += (r.sqlFiles || []).length; totalApis += (r.apis || []).length; });
   if (searchTerm) {
     allReqs = allReqs.filter(function(r) {
       return r.name.toLowerCase().indexOf(searchTerm) !== -1 || r.number.toLowerCase().indexOf(searchTerm) !== -1;
     });
   }
   var normalReqs = allReqs.filter(function(r) { return r.status !== 'delayed'; });
+  // count total SQLs/APIs (exclude delayed)
+  var totalSqls = 0, totalApis = 0;
+  normalReqs.forEach(function(r) { totalSqls += (r.sqlFiles || []).length; totalApis += (r.apis || []).length; });
   var delayedReqs = allReqs.filter(function(r) { return r.status === 'delayed'; });
 
   // Stats
