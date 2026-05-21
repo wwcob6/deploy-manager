@@ -765,8 +765,7 @@ function viewRequirement(windowId, reqId) {
           + '<div class="form-group"><label>API分组</label><input value="' + escHtml(a.apiGroup || '') + '" readonly></div>'
           + '<div class="form-group"><label>API版本</label><input value="' + escHtml(a.apiVersion || '') + '" readonly></div></div>'
           + '<div class="form-row"><div class="form-group"><label>简介</label><input value="' + escHtml(a.description || '') + '" readonly></div></div>'
-          + '<div class="form-row"><div class="form-group"><label>接入方式</label><input value="' + escHtml(a.accessMethod || '') + '" readonly></div>'
-          + '<div class="form-group"><label>应用名</label><input value="' + escHtml(a.appName || '') + '" readonly></div></div>'
+          + '<div class="form-row"><div class="form-group"><label>接入方式</label><input value="' + escHtml(a.accessMethod || 'REST接入') + '" readonly></div></div>'
           + '<div class="form-row"><div class="form-group"><label>接出模板</label><input value="' + escHtml(a.outTemplate || '') + '" readonly></div>'
           + '<div class="form-group"><label>接出实例</label><input value="' + escHtml(a.outInstance || '') + '" readonly></div>'
           + '<div class="form-group"><label>资源路径</label><input value="' + escHtml(a.resourcePath || '') + '" readonly></div>'
@@ -931,13 +930,12 @@ function buildApiEditor(index, api) {
     + '<div class="form-group short"><label>API分组</label><input type="text" id="apiGroup' + index + '" value="' + escHtml(a.apiGroup || '') + '"></div>'
     + '<div class="form-group short"><label>API版本</label><input type="text" id="apiVersion' + index + '" value="' + escHtml(a.apiVersion || '') + '"></div>'
     + '<div class="form-group"><label>简介</label><input type="text" id="apiDesc' + index + '" value="' + escHtml(a.description || '') + '"></div></div>'
-    + '<div class="api-field-row"><div class="form-group"><label>接入方式</label><input type="text" id="apiAccessMethod' + index + '" value="' + escHtml(a.accessMethod || '') + '"></div>'
-    + '<div class="form-group"><label>应用名</label><input type="text" id="apiAppName' + index + '" value="' + escHtml(a.appName || '') + '"></div></div>'
+    + '<div class="api-field-row"><div class="form-group"><label>接入方式</label><input type="text" id="apiAccessMethod' + index + '" value="' + escHtml(a.accessMethod || 'REST接入') + '"></div></div>'
     + '<div class="api-field-row"><div class="form-group short"><label>接出模板</label><input type="text" id="apiOutTemplate' + index + '" value="' + escHtml(a.outTemplate || '') + '"></div>'
     + '<div class="form-group short"><label>接出实例</label><input type="text" id="apiOutInstance' + index + '" value="' + escHtml(a.outInstance || '') + '"></div>'
     + '<div class="form-group"><label>资源路径</label><input type="text" id="apiResourcePath' + index + '" value="' + escHtml(a.resourcePath || '') + '"></div>'
-    + '<div class="form-group short"><label>drs服务类型</label><input type="text" id="apiDrsType' + index + '" value="' + escHtml(a.drsServiceType || '') + '"></div></div>'
-    + '<div class="form-group"><label>报文转换</label><input type="text" id="apiMsgTransform' + index + '" value="' + escHtml(a.messageTransform || '') + '" placeholder="报文转换内容..."></div>'
+    + '<div class="form-group short"><label>drs服务类型</label><input type="text" id="apiDrsType' + index + '" value="' + escHtml(a.drsServiceType || 'concentrated') + '"></div></div>'
+    + '<div class="form-group" style="max-width:200px"><label>报文转换</label><input type="text" id="apiMsgTransform' + index + '" value="' + escHtml(a.messageTransform || '') + '" disabled style="color:#999"></div>'
     + '</div>';
 }
 
@@ -997,19 +995,18 @@ function collectReqForm() {
   var apis = [];
   document.querySelectorAll('#apiContainer .api-editor-block').forEach(function(block) {
     var inputs = block.querySelectorAll('input');
-    if (inputs.length >= 10) {
+    if (inputs.length >= 8) {
       apis.push({
         apiName: inputs[0].value.trim(),
         apiGroup: inputs[1].value.trim(),
         apiVersion: inputs[2].value.trim(),
         description: inputs[3].value.trim(),
         accessMethod: inputs[4].value.trim(),
-        appName: inputs[5].value.trim(),
-        outTemplate: inputs[6].value.trim(),
-        outInstance: inputs[7].value.trim(),
-        resourcePath: inputs[8].value.trim(),
-        drsServiceType: inputs[9] ? inputs[9].value.trim() : '',
-        messageTransform: inputs[10] ? inputs[10].value.trim() : ''
+        outTemplate: inputs[5].value.trim(),
+        outInstance: inputs[6].value.trim(),
+        resourcePath: inputs[7].value.trim(),
+        drsServiceType: inputs[8] ? inputs[8].value.trim() : '',
+        messageTransform: inputs[9] ? inputs[9].value.trim() : ''
       });
     }
   });
@@ -1125,7 +1122,6 @@ function downloadApiTxt(windowId, reqId, apiIdx) {
     + 'API版本: ' + (a.apiVersion || '') + '\r\n'
     + '简介: ' + (a.description || '') + '\r\n'
     + '接入方式: ' + (a.accessMethod || '') + '\r\n'
-    + '应用名: ' + (a.appName || '') + '\r\n'
     + '接出模板: ' + (a.outTemplate || '') + '\r\n'
     + '接出实例: ' + (a.outInstance || '') + '\r\n'
     + '资源路径: ' + (a.resourcePath || '') + '\r\n'
@@ -1160,7 +1156,7 @@ function downloadAllWindowSql(windowId) {
         + 'API版本: ' + (a.apiVersion || '') + '\r\n'
         + '简介: ' + (a.description || '') + '\r\n'
         + '接入方式: ' + (a.accessMethod || '') + '\r\n'
-        + '应用名: ' + (a.appName || '') + '\r\n'
+       
         + '接出模板: ' + (a.outTemplate || '') + '\r\n'
         + '接出实例: ' + (a.outInstance || '') + '\r\n'
         + '资源路径: ' + (a.resourcePath || '') + '\r\n'
