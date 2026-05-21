@@ -572,7 +572,7 @@ function renderMain() {
 
   // count total SQLs
   var totalSqls = 0, totalApis = 0;
-  allReqs.forEach(function(r) { totalSqls += (r.sqlFiles || []).length; totalApis += (r.apis || []).length; });
+  normalReqs.forEach(function(r) { totalSqls += (r.sqlFiles || []).length; totalApis += (r.apis || []).length; });
   if (searchTerm) {
     allReqs = allReqs.filter(function(r) {
       return r.name.toLowerCase().indexOf(searchTerm) !== -1 || r.number.toLowerCase().indexOf(searchTerm) !== -1;
@@ -1168,7 +1168,8 @@ function downloadAllWindowApi(windowId) {
   var w = data.windows.find(function(v) { return v.id === windowId; });
   if (!w) return;
   var files = [];
-  (w.requirements || []).forEach(function(r) {
+  var reqs = (w.requirements || []).filter(function(r) { return r.status !== 'delayed'; });
+  reqs.forEach(function(r) {
     (r.apis || []).forEach(function(a) {
       var content = 'API: ' + (a.apiName || '') + '\r\n'
         + 'API分组: ' + (a.apiGroup || '') + '\r\n'
@@ -1200,7 +1201,8 @@ function downloadAllWindowSql(windowId) {
   if (!w) return;
 
   var files = [];
-  (w.requirements || []).forEach(function(r) {
+  var reqs = (w.requirements || []).filter(function(r) { return r.status !== 'delayed'; });
+  reqs.forEach(function(r) {
     (r.sqlFiles || []).forEach(function(s) {
       var content = '-- 数据库：' + s.dbName + '\n-- 需求：' + r.name + '（' + r.number + '）\n-- 解决人：' + (r.resolver || '') + '\n-- 生成时间：' + new Date().toLocaleString() + '\n\n'
         + '-- ========== 查询 ==========\n' + (s.query || '-- (无)') + '\n\n'
