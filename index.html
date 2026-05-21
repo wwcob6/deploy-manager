@@ -769,7 +769,7 @@ function viewRequirement(windowId, reqId) {
           + '<div class="form-row"><div class="form-group"><label>接出模板</label><input value="' + escHtml(a.outTemplate || '') + '" readonly></div>'
           + '<div class="form-group"><label>接出实例</label><input value="' + escHtml(a.outInstance || '') + '" readonly></div>'
           + '<div class="form-group"><label>资源路径</label><input value="' + escHtml(a.resourcePath || '') + '" readonly></div>'
-          + '<div class="form-group"><label>drs服务类型</label><input value="' + escHtml(a.drsServiceType || '') + '" readonly></div></div>'
+          + '<div class="form-group"><label>drs服务类型</label><input value="' + escHtml(a.drsServiceType || 'concentrated') + '" readonly></div></div>'
           + '<div class="form-group"><label>报文转换</label><input type="text" value="' + escHtml(a.messageTransform || '') + '" readonly></div></div>';
       }).join('') : '<p style="color:#999;font-size:13px">暂无API</p>')
     + '<div class="section-title">&#128451; SQL 脚本</div>' + sqlHtml
@@ -935,7 +935,7 @@ function buildApiEditor(index, api) {
     + '<div class="form-group short"><label>接出实例</label><input type="text" id="apiOutInstance' + index + '" value="' + escHtml(a.outInstance || '') + '"></div>'
     + '<div class="form-group"><label>资源路径</label><input type="text" id="apiResourcePath' + index + '" value="' + escHtml(a.resourcePath || '') + '"></div>'
     + '<div class="form-group short"><label>drs服务类型</label><input type="text" id="apiDrsType' + index + '" value="' + escHtml(a.drsServiceType || 'concentrated') + '"></div></div>'
-    + '<div class="form-group" style="max-width:200px"><label>报文转换</label><input type="text" id="apiMsgTransform' + index + '" value="' + escHtml(a.messageTransform || '') + '" disabled style="color:#999"></div>'
+    + '<div class="form-group" style="max-width:200px"><label>报文转换</label><input type="text" id="apiMsgTransform' + index + '" value="' + escHtml(a.messageTransform || '禁用') + '"></div>'
     + '</div>';
 }
 
