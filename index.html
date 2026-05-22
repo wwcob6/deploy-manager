@@ -742,9 +742,9 @@ function renderMain(keepSearchFocus) {
         }
         if (hasApis) {
           html += '<div class="detail-section"><div class="detail-section-title"><span>&#128268; API</span><span class="detail-count">' + r.apis.length + '</span></div>'
-            + '<table class="mini-table"><thead><tr><th>API</th><th>版本</th><th>接入方式</th><th>操作</th></tr></thead><tbody>';
+            + '<table class="mini-table"><thead><tr><th>API</th><th>操作</th></tr></thead><tbody>';
           r.apis.forEach(function(a, i) {
-            html += '<tr><td><span class="module-name" title="' + escHtml(a.apiName || '-') + '">' + escHtml(a.apiName || '-') + '</span></td><td><span class="detail-pill api">' + escHtml(a.apiVersion || '-') + '</span></td><td>' + escHtml(a.accessMethod || '-') + '</td>'
+            html += '<tr><td><span class="module-name" title="' + escHtml(a.apiName || '-') + '">' + escHtml(a.apiName || '-') + '</span></td>'
               + '<td><span class="detail-actions"><button class="btn btn-xs" onclick="viewApiOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看</button> '
               + '<button class="btn btn-xs btn-primary" onclick="downloadApiTxt(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载TXT</button></span></td></tr>';
           });
