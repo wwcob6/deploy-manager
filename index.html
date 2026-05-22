@@ -129,6 +129,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .mini-table tbody tr:hover td { background:#fbfdff; }
 .mini-table td:last-child, .mini-table th:last-child { text-align:right; }
 .mini-table code, .file-code { background:#eef4ff; padding:3px 7px; border-radius:6px; font-size:11px; color:#1d4ed8; font-family:"SF Mono","Menlo","Consolas",monospace; white-space:nowrap; }
+.db-section .mini-table { table-layout:fixed; }
+.db-section .mini-table th, .db-section .mini-table td { padding-left:8px; padding-right:8px; }
+.db-section .file-col { width:auto; }
+.db-section .db-col { width:74px; }
+.db-section .action-col { width:116px; }
+.db-section .file-code { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+.db-section .detail-actions { flex-wrap:nowrap; gap:4px; }
+.db-section .btn-xs { padding-left:6px; padding-right:6px; }
 .detail-pill { display:inline-flex; align-items:center; max-width:100%; padding:3px 8px; border-radius:999px; background:#f1f5f9; color:#475569; font-size:11px; font-weight:700; white-space:nowrap; }
 .detail-pill.db { background:#ecfdf3; color:#15803d; }
 .detail-pill.api { background:#fff7ed; color:#c2410c; }
@@ -728,11 +736,11 @@ function renderMain(keepSearchFocus) {
           html += '</tbody></table></div>';
         }
         if (r.sqlFiles && r.sqlFiles.length > 0) {
-          html += '<div class="detail-section"><div class="detail-section-title"><span>&#128451; 数据库清单</span><span class="detail-count">' + r.sqlFiles.length + '</span></div>'
-            + '<table class="mini-table"><thead><tr><th>SQL文件</th><th>数据库</th><th>操作</th></tr></thead><tbody>';
+          html += '<div class="detail-section db-section"><div class="detail-section-title"><span>&#128451; 数据库清单</span><span class="detail-count">' + r.sqlFiles.length + '</span></div>'
+            + '<table class="mini-table"><thead><tr><th class="file-col">SQL文件</th><th class="db-col">数据库</th><th class="action-col">操作</th></tr></thead><tbody>';
           r.sqlFiles.forEach(function(s, i) {
             var fn = s.dbName + r.name + '.sql';
-            html += '<tr><td><code class="file-code">' + escHtml(fn) + '</code></td><td><span class="detail-pill db">' + escHtml(s.dbName) + '</span></td><td><span class="detail-actions">'
+            html += '<tr><td><code class="file-code" title="' + escHtml(fn) + '">' + escHtml(fn) + '</code></td><td><span class="detail-pill db">' + escHtml(s.dbName) + '</span></td><td><span class="detail-actions">'
               + '<button class="btn btn-xs" onclick="viewSqlOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看SQL</button> '
               + '<button class="btn btn-xs btn-primary" onclick="downloadSqlById(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载</button></span></td></tr>';
           });
