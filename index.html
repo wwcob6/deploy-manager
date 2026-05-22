@@ -730,7 +730,7 @@ function renderMain(keepSearchFocus) {
           html += '</tbody></table></div>';
         }
         if (r.sqlFiles && r.sqlFiles.length > 0) {
-          html += '<div class="detail-section"><div class="detail-section-title"><span>&#128451; 数据库清单</span><span class="detail-count">' + r.sqlFiles.length + '</span></div>'
+          html += '<div class="detail-section" style="flex:2"><div class="detail-section-title"><span>&#128451; 数据库清单</span><span class="detail-count">' + r.sqlFiles.length + '</span></div>'
             + '<table class="mini-table"><thead><tr><th>SQL文件</th><th>数据库</th><th>操作</th></tr></thead><tbody>';
           r.sqlFiles.forEach(function(s, i) {
             var fn = s.dbName + r.name + '.sql';
@@ -741,7 +741,7 @@ function renderMain(keepSearchFocus) {
           html += '</tbody></table></div>';
         }
         if (hasApis) {
-          html += '<div class="detail-section"><div class="detail-section-title"><span>&#128268; API</span><span class="detail-count">' + r.apis.length + '</span></div>'
+          html += '<div class="detail-section" style="flex:0 1 300px"><div class="detail-section-title"><span>&#128268; API</span><span class="detail-count">' + r.apis.length + '</span></div>'
             + '<table class="mini-table"><thead><tr><th>API</th><th>操作</th></tr></thead><tbody>';
           r.apis.forEach(function(a, i) {
             html += '<tr><td><span class="module-name" title="' + escHtml(a.apiName || '-') + '">' + escHtml(a.apiName || '-') + '</span></td>'
