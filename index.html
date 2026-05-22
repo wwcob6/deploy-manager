@@ -6,57 +6,58 @@
 <title>投产需求清单管理工具</title>
 <style>
 :root {
-  --primary: #4f6ef7; --primary-hover: #3b5de7; --danger: #e74c3c; --success: #27ae60; --warning: #f39c12;
-  --bg: #f5f6fa; --sidebar-bg: #2c3e50; --sidebar-text: #ecf0f1; --card-bg: #fff;
-  --border: #dcdfe6; --text: #2c3e50; --text-secondary: #7f8c8d; --radius: 8px;
-  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --primary: #2563eb; --primary-hover: #1d4ed8; --danger: #dc2626; --success: #16a34a; --warning: #d97706;
+  --bg: #eef2f7; --sidebar-bg: #182230; --sidebar-panel: #202c3b; --sidebar-text: #e5e7eb; --card-bg: #fff;
+  --border: #d7dee8; --text: #1f2937; --text-secondary: #667085; --radius: 8px;
+  --shadow: 0 8px 24px rgba(16,24,40,0.08);
+  --shadow-sm: 0 1px 2px rgba(16,24,40,0.06);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; font-size: 14px; }
 
 /* Sidebar */
-.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; overflow: hidden; }
-.sidebar-header { padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; }
-.sidebar-header h2 { font-size: 16px; font-weight: 600; }
-.sidebar-header .btn-icon { background: rgba(255,255,255,0.15); border: none; color: #fff; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-.sidebar-header .btn-icon:hover { background: rgba(255,255,255,0.25); }
-.sidebar-body { flex: 1; overflow-y: auto; padding: 4px 0; }
+.sidebar { width: 280px; min-width: 280px; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.08); }
+.sidebar-header { padding: 18px 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; background: var(--sidebar-panel); }
+.sidebar-header h2 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.sidebar-header .btn-icon { background: #2dd4bf; border: none; color: #0f172a; width: 32px; height: 32px; border-radius: 7px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); }
+.sidebar-header .btn-icon:hover { background: #5eead4; }
+.sidebar-body { flex: 1; overflow-y: auto; padding: 8px; }
 
-.year-group { border-bottom: 1px solid rgba(255,255,255,0.06); }
-.year-group-header { padding: 10px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; user-select: none; font-size: 15px; }
+.year-group { border-radius: 8px; margin-bottom: 6px; overflow: hidden; }
+.year-group-header { padding: 10px 10px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; user-select: none; font-size: 15px; }
 .year-group-header:hover { background: rgba(255,255,255,0.08); }
 .year-group-header .year-label { display: flex; align-items: center; gap: 6px; }
-.year-group-header .arrow { font-size: 10px; transition: transform 0.2s; color: #95a5a6; }
+.year-group-header .arrow { font-size: 10px; transition: transform 0.2s; color: #9ca3af; }
 .year-group-header .arrow.expanded { transform: rotate(90deg); }
 .year-group-header .year-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; }
 .year-group-header:hover .year-actions { opacity: 1; }
-.year-group-header .btn-sm { background: none; border: none; color: #bdc3c7; cursor: pointer; font-size: 12px; padding: 2px 5px; border-radius: 3px; }
+.year-group-header .btn-sm { background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 12px; padding: 2px 5px; border-radius: 4px; }
 .year-group-header .btn-sm:hover { color: #fff; background: rgba(255,255,255,0.15); }
 
 .window-sublist { display: none; }
 .window-sublist.open { display: block; }
-.window-sublist-item { padding: 8px 16px 8px 36px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; border-left: 3px solid transparent; color: #bdc3c7; }
-.window-sublist-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
-.window-sublist-item.active { background: rgba(79,110,247,0.25); border-left-color: var(--primary); color: #fff; font-weight: 600; }
+.window-sublist-item { padding: 8px 10px 8px 30px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; border-left: 3px solid transparent; color: #cbd5e1; border-radius: 6px; }
+.window-sublist-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+.window-sublist-item.active { background: rgba(37,99,235,0.22); border-left-color: #2dd4bf; color: #fff; font-weight: 600; }
 .window-sublist-item .win-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; }
 .window-sublist-item:hover .win-actions { opacity: 1; }
-.window-sublist-item .btn-xs { background: none; border: none; color: #7f8c8d; cursor: pointer; font-size: 11px; padding: 1px 4px; border-radius: 3px; }
+.window-sublist-item .btn-xs { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 11px; padding: 1px 4px; border-radius: 4px; }
 .window-sublist-item .btn-xs:hover { color: #fff; background: rgba(255,255,255,0.15); }
-.add-window-btn { padding: 6px 16px 6px 36px; font-size: 12px; color: #95a5a6; cursor: pointer; }
+.add-window-btn { padding: 7px 10px 7px 30px; font-size: 12px; color: #94a3b8; cursor: pointer; border-radius: 6px; }
 .add-window-btn:hover { color: #fff; }
 
 /* Main */
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.main-header { padding: 14px 24px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.main-header h1 { font-size: 18px; font-weight: 600; }
+.main-header { padding: 16px 28px; background: rgba(255,255,255,0.92); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); }
+.main-header h1 { font-size: 18px; font-weight: 700; }
 .main-header .header-actions { display: flex; gap: 8px; align-items: center; }
-.main-content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.main-content { flex: 1; overflow-y: auto; padding: 24px 28px; }
 
 /* Buttons */
-.btn { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-size: 14px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
-.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn { padding: 8px 14px; border-radius: 7px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-size: 14px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; box-shadow: var(--shadow-sm); }
+.btn:hover { border-color: var(--primary); color: var(--primary); background: #f8fbff; }
 .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-.btn-primary:hover { background: var(--primary-hover); }
+.btn-primary:hover { background: var(--primary-hover); color: #fff; }
 .btn-danger { color: var(--danger); }
 .btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 .btn-success { color: var(--success); }
@@ -67,18 +68,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .btn-xs { padding: 2px 8px; font-size: 11px; border-radius: 4px; }
 
 /* Cards */
-.card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
-.card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fafbfc; }
+.card { background: var(--card-bg); border: 1px solid rgba(215,222,232,0.9); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
+.card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fbfcfe; gap: 14px; }
 .card-header h3 { font-size: 15px; font-weight: 600; }
+.card-body { padding: 16px 18px; }
+.list-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex:1; min-width:0; }
+.toolbar-left { display:flex; align-items:center; gap:10px; min-width:0; flex-wrap:wrap; }
+.toolbar-actions { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
 
 /* Dashboard stats */
-.dashboard-stats { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+.dashboard-stats { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:20px; }
 .stat-card {
-  flex:1; min-width:120px; background:#fff; border-radius:var(--radius);
-  padding:14px 16px; box-shadow:var(--shadow); text-align:center;
+  background:#fff; border:1px solid rgba(215,222,232,0.85); border-radius:var(--radius);
+  padding:14px 16px; box-shadow:var(--shadow-sm); text-align:left; position:relative; overflow:hidden;
 }
-.stat-card .stat-num { font-size:28px; font-weight:700; line-height:1.2; }
+.stat-card:before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:#94a3b8; }
+.stat-card .stat-num { font-size:26px; font-weight:750; line-height:1.2; }
 .stat-card .stat-label { font-size:12px; color:var(--text-secondary); margin-top:4px; }
+.stat-card.ok:before { background: var(--success); }
+.stat-card.warn:before { background: var(--warning); }
+.stat-card.bad:before { background: var(--danger); }
+.stat-card.info:before { background: var(--primary); }
 .stat-card.ok .stat-num { color:#2e7d32; }
 .stat-card.warn .stat-num { color:#e65100; }
 .stat-card.bad .stat-num { color:#c62828; }
@@ -86,9 +96,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 
 /* Compact req table */
 .req-table-wrap { overflow-x:auto; }
-.req-table { width:100%; border-collapse:collapse; font-size:13px; background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); }
-.req-table th { background:#f5f6fa; font-weight:600; padding:10px 12px; text-align:left; white-space:nowrap; border-bottom:2px solid var(--border); font-size:12px; color:var(--text-secondary); }
-.req-table td { padding:8px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.req-table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; background:#fff; overflow:hidden; }
+.req-table th { background:#f6f8fb; font-weight:700; padding:11px 12px; text-align:left; white-space:nowrap; border-bottom:1px solid var(--border); font-size:12px; color:var(--text-secondary); }
+.req-table td { padding:10px 12px; border-bottom:1px solid #edf1f6; vertical-align:middle; }
 .req-table tr:hover td { background:#fafbfc; }
 .req-table tr.delayed-row td { background:#fffef5; }
 .req-table tr.delayed-row:hover td { background:#fff8e1; }
@@ -101,24 +111,36 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .req-table .cell-actions { white-space:nowrap; }
 .req-table .row-detail { display:none; }
 .req-table .row-detail.open { display:table-row; }
-.req-table .row-detail td { background:#f8f9fa; padding:12px 16px; }
+.req-table > tbody > .row-detail > td { background:#f3f6fb; padding:16px; text-align:left; }
 .expand-arrow { cursor:pointer; font-size:10px; color:var(--primary); user-select:none; }
 .expand-arrow.open { transform:rotate(90deg); }
-.req-table td:last-child, .req-table th:last-child { text-align:right; }
+.req-table > thead > tr > th:last-child, .req-table > tbody > tr > td:last-child { text-align:right; }
+.req-table > tbody > .row-detail > td:last-child { text-align:left; }
 
 /* Expanded detail */
-.detail-expanded { display:flex; gap:16px; }
-.detail-section { flex:1; min-width:0; max-width:500px; }
-.detail-section-title { font-size:12px; font-weight:700; color:var(--primary); margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid var(--border); text-align:center; }
-.mini-table { width:100%; border-collapse:collapse; font-size:12px; background:#fff; border-radius:4px; overflow:hidden; border:1px solid var(--border); }
-.mini-table th { background:#f0f1f5; font-weight:600; padding:6px 10px; text-align:left; font-size:11px; color:var(--text-secondary); }
-.mini-table td { padding:5px 10px; border-top:1px solid #eee; }
-.mini-table code { background:#edeffc; padding:1px 6px; border-radius:3px; font-size:11px; color:var(--primary); }
+.detail-expanded { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; align-items:start; }
+.detail-section { min-width:0; background:#fff; border:1px solid #dbe4ef; border-radius:8px; box-shadow:var(--shadow-sm); overflow:hidden; }
+.detail-section-title { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12px; font-weight:800; color:var(--text); padding:10px 12px; background:#f8fbff; border-bottom:1px solid #e3eaf3; text-align:left; }
+.detail-count { min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:#e0f2fe; color:#0369a1; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; }
+.mini-table { width:100%; border-collapse:separate; border-spacing:0; font-size:12px; background:#fff; border:0; }
+.mini-table th { background:#fff; font-weight:700; padding:9px 12px; text-align:left; font-size:11px; color:var(--text-secondary); border-bottom:1px solid #eef2f6; }
+.mini-table td { padding:10px 12px; border-top:1px solid #f1f4f8; vertical-align:middle; }
+.mini-table tbody tr:first-child td { border-top:0; }
+.mini-table tbody tr:hover td { background:#fbfdff; }
+.mini-table td:last-child, .mini-table th:last-child { text-align:right; }
+.mini-table code, .file-code { background:#eef4ff; padding:3px 7px; border-radius:6px; font-size:11px; color:#1d4ed8; font-family:"SF Mono","Menlo","Consolas",monospace; white-space:nowrap; }
+.detail-pill { display:inline-flex; align-items:center; max-width:100%; padding:3px 8px; border-radius:999px; background:#f1f5f9; color:#475569; font-size:11px; font-weight:700; white-space:nowrap; }
+.detail-pill.db { background:#ecfdf3; color:#15803d; }
+.detail-pill.api { background:#fff7ed; color:#c2410c; }
+.module-name { display:block; max-width:210px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700; color:#334155; }
 .branch-link { color:var(--primary); text-decoration:none; cursor:pointer; }
 .branch-link:hover { text-decoration:underline; }
+.branch-link.branch-pill { max-width:160px; overflow:hidden; text-overflow:ellipsis; background:#eff6ff; color:#1d4ed8; text-decoration:none; }
+.branch-link.branch-pill:hover { background:#dbeafe; text-decoration:none; }
+.detail-actions { display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap; }
 
 /* API editor */
-.api-editor-block { background:#f8f9fa; border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:12px; }
+.api-editor-block { background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:12px; }
 .api-editor-block .api-field-row { display:flex; gap:8px; margin-bottom:8px; }
 .api-editor-block .api-field-row .form-group { flex:1; margin-bottom:0; }
 .api-editor-block .api-field-row .form-group.short { flex:0 0 140px; }
@@ -145,9 +167,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .req-toggle-body th { background: #f5f6fa; font-weight: 600; }
 
 /* Modal */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-start; justify-content: center; padding-top: 40px; overflow-y: auto; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.58); z-index: 1000; align-items: flex-start; justify-content: center; padding-top: 40px; overflow-y: auto; }
 .modal-overlay.show { display: flex; }
-.modal { background: #fff; border-radius: 12px; width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.2); margin-bottom: 40px; }
+.modal { background: #fff; border-radius: 12px; width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(15,23,42,0.26); margin-bottom: 40px; }
 .modal-lg { max-width: 1000px; }
 .modal-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #fff; z-index: 1; }
 .modal-header h2 { font-size: 18px; }
@@ -157,18 +179,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 /* Form */
 .form-group { margin-bottom: 14px; }
 .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
-.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; transition: border-color 0.15s; }
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 7px; font-size: 14px; font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; background:#fff; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,0.12); }
 .form-group textarea { resize: vertical; min-height: 60px; font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12px; }
 .form-row { display: flex; gap: 12px; }
 .form-row .form-group { flex: 1; }
-.section-title { font-size: 14px; font-weight: 700; color: var(--primary); margin: 20px 0 12px 0; padding-bottom: 6px; border-bottom: 2px solid #edeffc; }
-.sql-editor-block { background: #f8f9fa; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+.section-title { font-size: 14px; font-weight: 700; color: var(--primary); margin: 20px 0 12px 0; padding-bottom: 6px; border-bottom: 2px solid #dbeafe; }
+.sql-editor-block { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
 .sql-editor-block textarea { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12px; background: #1e1e1e; color: #d4d4d4; min-height: 80px; }
 
 /* Search & Settings */
-.search-input { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; width: 240px; outline: none; }
-.search-input:focus { border-color: var(--primary); }
+.search-input { padding: 7px 12px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; width: 220px; outline: none; background:#fff; box-shadow:var(--shadow-sm); }
+.search-input:focus { border-color: var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,0.12); }
 .settings-toggle { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-secondary); padding: 4px; }
 .settings-toggle:hover { color: var(--text); }
 .gitlab-fetch-row { display: flex; gap: 8px; align-items: flex-end; margin-top: 8px; }
@@ -178,9 +200,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .gitlab-branches .branch-option:hover { background: #edeffc; }
 
 /* Server mode indicator */
-.mode-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; margin-left: 4px; }
-.mode-badge.local { background: #e8f5e9; color: #2e7d32; }
-.mode-badge.shared { background: #e3f2fd; color: #1565c0; }
+.mode-badge { font-size: 10px; padding: 2px 7px; border-radius: 999px; margin-left: 4px; font-weight: 700; }
+.mode-badge.local { background: rgba(45,212,191,0.18); color: #99f6e4; }
+.mode-badge.shared { background: rgba(96,165,250,0.18); color: #bfdbfe; }
 
 /* Toast */
 .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 14px; z-index: 2000; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
@@ -192,6 +214,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
 .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
 .empty-state p { font-size: 15px; }
+@media (max-width: 900px) {
+  body { flex-direction: column; overflow: auto; height: auto; min-height: 100vh; }
+  .sidebar { width: 100%; min-width: 0; max-height: 280px; }
+  .main { min-height: 0; }
+  .main-content { padding: 18px; }
+  .card-header, .list-toolbar { align-items:flex-start; flex-direction:column; }
+  .toolbar-actions { justify-content:flex-start; }
+  .form-row, .api-editor-block .api-field-row, .detail-expanded { flex-direction:column; }
+  .search-input { width: 100%; }
+}
 </style>
 </head>
 <body>
@@ -380,6 +412,9 @@ var githubRepos = [];
 var branchCache = {};
 var branchLoading = {};
 var suppressRepoChange = false;
+var currentSearchTerm = '';
+var searchCursorPos = 0;
+var searchWindowId = null;
 
 // ========== Helpers ==========
 function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); }
@@ -396,6 +431,18 @@ function escHtml(s) {
   var d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
+}
+function syncSearchWindow() {
+  if (searchWindowId !== selectedWindowId) {
+    searchWindowId = selectedWindowId;
+    currentSearchTerm = '';
+    searchCursorPos = 0;
+  }
+}
+function handleWindowSearch(el) {
+  currentSearchTerm = el.value;
+  searchCursorPos = typeof el.selectionStart === 'number' ? el.selectionStart : currentSearchTerm.length;
+  renderMain(true);
 }
 
 function getBranchUrl(moduleName, branch, moduleFullName) {
@@ -457,6 +504,11 @@ function toggleYear(y) {
 }
 function selectWindow(windowId) {
   selectedWindowId = windowId;
+  if (searchWindowId !== windowId) {
+    currentSearchTerm = '';
+    searchCursorPos = 0;
+  }
+  searchWindowId = windowId;
   var w = data.windows.find(function(v) { return v.id === windowId; });
   if (w) currentYear = w.year;
   renderSidebar();
@@ -551,9 +603,10 @@ async function deleteWindow(id) {
 }
 
 // ========== Main Content ==========
-function renderMain() {
+function renderMain(keepSearchFocus) {
   var title = document.getElementById('mainTitle');
   var content = document.getElementById('mainContent');
+  syncSearchWindow();
 
   if (!selectedWindowId) {
     title.textContent = currentYear ? currentYear + ' 年 - 请选择投产窗口' : '请选择投产窗口';
@@ -566,8 +619,8 @@ function renderMain() {
 
   title.textContent = win.year + ' 年 投产窗口：' + win.date;
 
-  var searchEl = document.getElementById('winSearch');
-  var searchTerm = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  var searchValue = currentSearchTerm || '';
+  var searchTerm = searchValue.trim().toLowerCase();
   var allReqs = win.requirements || [];
 
   if (searchTerm) {
@@ -619,15 +672,16 @@ function renderMain() {
 
   // Requirements table
   html += '<div class="card"><div class="card-header">'
-    + '<div style="display:flex;align-items:center;gap:8px;flex:1">'
+    + '<div class="list-toolbar">'
+    + '<div class="toolbar-left">'
     + '<h3>&#128203; 需求列表（' + normalReqs.length + '个）</h3>'
-    + '<input type="text" class="search-input" id="winSearch" placeholder="搜索需求..." oninput="renderMain()" value="' + escHtml(searchTerm) + '" autocomplete="off" style="width:180px">'
+    + '<input type="text" class="search-input" id="winSearch" placeholder="搜索需求..." oninput="handleWindowSearch(this)" value="' + escHtml(searchValue) + '" autocomplete="off">'
     + '</div>'
-    + '<div style="display:flex;gap:6px">'
+    + '<div class="toolbar-actions">'
     + (totalSqls > 0 ? '<button class="btn btn-sm" onclick="downloadAllWindowSql(\'' + win.id + '\')">&#128229; 下载全部SQL (' + totalSqls + ')</button>' : '')
     + (totalApis > 0 ? '<button class="btn btn-sm" onclick="downloadAllWindowApi(\'' + win.id + '\')">&#128229; 下载全部API (' + totalApis + ')</button>' : '')
     + '<button class="btn btn-sm btn-primary" onclick="openReqModal(\'' + win.id + '\')">+ 新建需求</button>'
-    + '</div></div>'
+    + '</div></div></div>'
     + '<div class="card-body" style="padding:0">';
 
   if (normalReqs.length === 0) {
@@ -664,33 +718,33 @@ function renderMain() {
         html += '<tr class="row-detail" id="' + uid + '-detail"><td></td><td colspan="8">'
           + '<div class="detail-expanded">';
         if (r.modules && r.modules.length > 0) {
-          html += '<div class="detail-section"><div class="detail-section-title">&#128736; 代码模块</div>'
+          html += '<div class="detail-section"><div class="detail-section-title"><span>&#128736; 代码模块</span><span class="detail-count">' + r.modules.length + '</span></div>'
             + '<table class="mini-table"><thead><tr><th>模块</th><th>分支</th></tr></thead><tbody>';
           r.modules.forEach(function(m) {
             var dn = m.name.indexOf('/') > -1 ? m.name.split('/').pop() : m.name;
             var url = getBranchUrl(m.name, m.branch, m.full_name);
-            html += '<tr><td>' + escHtml(dn) + '</td><td>' + (m.branch ? '<a class="branch-link" href="' + url + '" target="_blank" title="跳转到仓库分支">' + escHtml(m.branch) + '</a>' : '无分支') + '</td></tr>';
+            html += '<tr><td><span class="module-name" title="' + escHtml(dn) + '">' + escHtml(dn) + '</span></td><td>' + (m.branch ? '<a class="branch-link detail-pill branch-pill" href="' + url + '" target="_blank" rel="noopener noreferrer" title="跳转到仓库分支">' + escHtml(m.branch) + '</a>' : '<span class="detail-pill">无分支</span>') + '</td></tr>';
           });
           html += '</tbody></table></div>';
         }
         if (r.sqlFiles && r.sqlFiles.length > 0) {
-          html += '<div class="detail-section"><div class="detail-section-title">&#128451; 数据库清单</div>'
+          html += '<div class="detail-section"><div class="detail-section-title"><span>&#128451; 数据库清单</span><span class="detail-count">' + r.sqlFiles.length + '</span></div>'
             + '<table class="mini-table"><thead><tr><th>SQL文件</th><th>数据库</th><th>操作</th></tr></thead><tbody>';
           r.sqlFiles.forEach(function(s, i) {
             var fn = s.dbName + r.name + '.sql';
-            html += '<tr><td><code>' + escHtml(fn) + '</code></td><td>' + escHtml(s.dbName) + '</td><td style="white-space:nowrap">'
+            html += '<tr><td><code class="file-code">' + escHtml(fn) + '</code></td><td><span class="detail-pill db">' + escHtml(s.dbName) + '</span></td><td><span class="detail-actions">'
               + '<button class="btn btn-xs" onclick="viewSqlOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看SQL</button> '
-              + '<button class="btn btn-xs btn-primary" onclick="downloadSqlById(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载</button></td></tr>';
+              + '<button class="btn btn-xs btn-primary" onclick="downloadSqlById(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载</button></span></td></tr>';
           });
           html += '</tbody></table></div>';
         }
         if (hasApis) {
-          html += '<div class="detail-section"><div class="detail-section-title">&#128268; API</div>'
+          html += '<div class="detail-section"><div class="detail-section-title"><span>&#128268; API</span><span class="detail-count">' + r.apis.length + '</span></div>'
             + '<table class="mini-table"><thead><tr><th>API</th><th>版本</th><th>接入方式</th><th>操作</th></tr></thead><tbody>';
           r.apis.forEach(function(a, i) {
-            html += '<tr><td>' + escHtml(a.apiName || '-') + '</td><td>' + escHtml(a.apiVersion || '-') + '</td><td>' + escHtml(a.accessMethod || '-') + '</td>'
-              + '<td style="white-space:nowrap"><button class="btn btn-xs" onclick="viewApiOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看</button> '
-              + '<button class="btn btn-xs btn-primary" onclick="downloadApiTxt(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载TXT</button></td></tr>';
+            html += '<tr><td><span class="module-name" title="' + escHtml(a.apiName || '-') + '">' + escHtml(a.apiName || '-') + '</span></td><td><span class="detail-pill api">' + escHtml(a.apiVersion || '-') + '</span></td><td>' + escHtml(a.accessMethod || '-') + '</td>'
+              + '<td><span class="detail-actions"><button class="btn btn-xs" onclick="viewApiOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看</button> '
+              + '<button class="btn btn-xs btn-primary" onclick="downloadApiTxt(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载TXT</button></span></td></tr>';
           });
           html += '</tbody></table></div>';
         }
@@ -698,10 +752,21 @@ function renderMain() {
       }
     });
 
-    html += '</tbody></table></div></div></div>';
+    html += '</tbody></table></div>';
   }
+  html += '</div></div>';
 
   content.innerHTML = html;
+  if (keepSearchFocus) {
+    var nextSearchEl = document.getElementById('winSearch');
+    if (nextSearchEl) {
+      nextSearchEl.focus();
+      if (nextSearchEl.setSelectionRange) {
+        var pos = Math.min(searchCursorPos, nextSearchEl.value.length);
+        nextSearchEl.setSelectionRange(pos, pos);
+      }
+    }
+  }
 }
 
 function toggleReqRow(uid) {
@@ -747,7 +812,7 @@ function viewRequirement(windowId, reqId) {
       + r.modules.map(function(m) {
           var dn = m.name.indexOf('/') > -1 ? m.name.split('/').pop() : m.name;
           var url = getBranchUrl(m.name, m.branch, m.full_name);
-          return '<tr><td style="border:1px solid var(--border);padding:6px 10px">' + escHtml(dn) + '</td><td style="border:1px solid var(--border);padding:6px 10px">' + (m.branch ? '<a class="branch-link" href="' + url + '" target="_blank" title="跳转到仓库分支">' + escHtml(m.branch) + '</a>' : '无分支') + '</td></tr>';
+          return '<tr><td style="border:1px solid var(--border);padding:6px 10px">' + escHtml(dn) + '</td><td style="border:1px solid var(--border);padding:6px 10px">' + (m.branch ? '<a class="branch-link" href="' + url + '" target="_blank" rel="noopener noreferrer" title="跳转到仓库分支">' + escHtml(m.branch) + '</a>' : '无分支') + '</td></tr>';
         }).join('')
       + '</tbody></table>';
   }
@@ -892,9 +957,9 @@ function buildSqlEditor(index, sql) {
     + '<option value="db_core"' + (sql && sql.dbName === 'db_core' ? ' selected' : '') + '>db_core</option>'
     + '<option value="db_ac"' + (sql && sql.dbName === 'db_ac' ? ' selected' : '') + '>db_ac</option></select></div>'
     + '<button class="btn btn-xs btn-danger" style="margin-top:18px" onclick="document.getElementById(\'sqlBlock' + index + '\').remove()">&#10005; 删除此SQL</button></div>'
-    + '<div class="form-group"><label>——查询 SQL脚本</label><textarea id="sqlQuery' + index + '" placeholder="SELECT ...">' + (sql ? (sql.query || '') : '') + '</textarea></div>'
-    + '<div class="form-group"><label>——执行 SQL脚本</label><textarea id="sqlExecute' + index + '" placeholder="INSERT/UPDATE/ALTER ...">' + (sql ? (sql.execute || '') : '') + '</textarea></div>'
-    + '<div class="form-group"><label>——回退 SQL脚本</label><textarea id="sqlRollback' + index + '" placeholder="回退SQL ...">' + (sql ? (sql.rollback || '') : '') + '</textarea></div></div>';
+    + '<div class="form-group"><label>——查询 SQL脚本</label><textarea id="sqlQuery' + index + '" placeholder="SELECT ...">' + escHtml(sql ? (sql.query || '') : '') + '</textarea></div>'
+    + '<div class="form-group"><label>——执行 SQL脚本</label><textarea id="sqlExecute' + index + '" placeholder="INSERT/UPDATE/ALTER ...">' + escHtml(sql ? (sql.execute || '') : '') + '</textarea></div>'
+    + '<div class="form-group"><label>——回退 SQL脚本</label><textarea id="sqlRollback' + index + '" placeholder="回退SQL ...">' + escHtml(sql ? (sql.rollback || '') : '') + '</textarea></div></div>';
 }
 
 function addModuleRow() {
