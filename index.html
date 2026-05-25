@@ -94,35 +94,65 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .stat-card.bad .stat-num { color:#c62828; }
 .stat-card.info .stat-num { color:#1565c0; }
 
+/* Delayed requirements */
+.delayed-list { display:flex; flex-wrap:wrap; gap:8px 10px; }
+.delayed-card {
+  display:inline-flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  padding:4px 8px;
+  border:1px solid #fed7aa;
+  border-radius:6px;
+  background:#fffaf0;
+  box-shadow:var(--shadow-sm);
+  cursor:pointer;
+  transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.delayed-card:hover { border-color:#fb923c; box-shadow:var(--shadow); transform:translateY(-1px); }
+.delayed-info { display:flex; align-items:center; gap:6px; min-width:0; }
+.delayed-name { display:inline; font-size:13px; font-weight:700; color:#334155; line-height:1.4; overflow-wrap:anywhere; }
+.delayed-card .status-tag { display:inline-flex; font-size:10px; padding:2px 8px; }
+
 /* Compact req table */
-.req-table-wrap { overflow-x:auto; }
-.req-table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; background:#fff; overflow:hidden; }
+.req-table-wrap { overflow-x:hidden; }
+.req-table { width:100%; table-layout:fixed; border-collapse:separate; border-spacing:0; font-size:13px; background:#fff; overflow:hidden; }
 .req-table th { background:#f6f8fb; font-weight:700; padding:11px 12px; text-align:left; white-space:nowrap; border-bottom:1px solid var(--border); font-size:12px; color:var(--text-secondary); }
 .req-table td { padding:10px 12px; border-bottom:1px solid #edf1f6; vertical-align:middle; }
 .req-table tr:hover td { background:#fafbfc; }
 .req-table tr.delayed-row td { background:#fffef5; }
 .req-table tr.delayed-row:hover td { background:#fff8e1; }
-.req-table .req-name-cell { font-weight:600; }
+.req-table > thead > tr > th:nth-child(1), .req-table > tbody > tr > td:nth-child(1) { width:34px; padding-left:10px; padding-right:4px; }
+.req-table > thead > tr > th:nth-child(2), .req-table > tbody > tr > td:nth-child(2) { width:auto; }
+.req-table > thead > tr > th:nth-child(3), .req-table > tbody > tr > td:nth-child(3) { width:82px; }
+.req-table > thead > tr > th:nth-child(4), .req-table > tbody > tr > td:nth-child(4) { width:92px; }
+.req-table > thead > tr > th:nth-child(5), .req-table > tbody > tr > td:nth-child(5),
+.req-table > thead > tr > th:nth-child(6), .req-table > tbody > tr > td:nth-child(6),
+.req-table > thead > tr > th:nth-child(7), .req-table > tbody > tr > td:nth-child(7),
+.req-table > thead > tr > th:nth-child(8), .req-table > tbody > tr > td:nth-child(8) { width:112px; }
+.req-table > thead > tr > th:nth-child(9), .req-table > tbody > tr > td:nth-child(9) { width:196px; }
+.req-table .req-name-cell { font-weight:600; line-height:1.45; overflow-wrap:anywhere; }
 .req-table .req-name-cell .req-num { color:var(--primary); font-size:11px; background:#edeffc; padding:1px 6px; border-radius:3px; margin-left:6px; }
 .req-table .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:2px; }
 .req-table .dot.green { background:#4caf50; }
 .req-table .dot.red { background:#f44336; }
 .req-table .dot.orange { background:#ff9800; }
 .req-table .cell-actions { white-space:nowrap; }
+.req-table .cell-actions .btn-xs { padding-left:7px; padding-right:7px; }
 .req-table .row-detail { display:none; }
 .req-table .row-detail.open { display:table-row; }
-.req-table > tbody > .row-detail > td { background:#f3f6fb; padding:16px; text-align:left; }
+.req-table > tbody > .row-detail > td { background:#f3f6fb; padding:14px 12px; text-align:left; width:auto !important; }
 .expand-arrow { cursor:pointer; font-size:10px; color:var(--primary); user-select:none; }
 .expand-arrow.open { transform:rotate(90deg); }
 .req-table > thead > tr > th:last-child, .req-table > tbody > tr > td:last-child { text-align:right; }
 .req-table > tbody > .row-detail > td:last-child { text-align:left; }
 
 /* Expanded detail */
-.detail-expanded { display:flex; flex-wrap:wrap; gap:12px; align-items:start; }
-.detail-section { flex:1; min-width:280px; background:#fff; border:1px solid #dbe4ef; border-radius:8px; box-shadow:var(--shadow-sm); overflow:auto; }
+.detail-expanded { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.22fr) minmax(0, 0.98fr); gap:12px; align-items:start; width:100%; max-width:100%; }
+.detail-section { min-width:0; background:#fff; border:1px solid #dbe4ef; border-radius:8px; box-shadow:var(--shadow-sm); overflow:hidden; }
 .detail-section-title { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12px; font-weight:800; color:var(--text); padding:10px 12px; background:#f8fbff; border-bottom:1px solid #e3eaf3; text-align:left; }
 .detail-count { min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:#e0f2fe; color:#0369a1; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; }
-.mini-table { width:100%; min-width:320px; border-collapse:separate; border-spacing:0; font-size:12px; background:#fff; border:0; }
+.mini-table { width:100%; table-layout:fixed; border-collapse:separate; border-spacing:0; font-size:12px; background:#fff; border:0; }
 .mini-table th { background:#fff; font-weight:700; padding:9px 12px; text-align:left; font-size:11px; color:var(--text-secondary); border-bottom:1px solid #eef2f6; white-space:nowrap; }
 .mini-table td { padding:10px 12px; border-top:1px solid #f1f4f8; vertical-align:middle; }
 .mini-table td:last-child { white-space:nowrap; }
@@ -130,23 +160,107 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .mini-table tbody tr:hover td { background:#fbfdff; }
 .mini-table td:last-child, .mini-table th:last-child { text-align:right; }
 .mini-table code, .file-code { background:#eef4ff; padding:3px 7px; border-radius:6px; font-size:11px; color:#1d4ed8; font-family:"SF Mono","Menlo","Consolas",monospace; white-space:nowrap; }
-.detail-pill { display:inline-flex; align-items:center; max-width:180px; padding:3px 8px; border-radius:999px; background:#f1f5f9; color:#475569; font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.module-section { grid-column:auto; }
+.db-section { grid-column:auto; width:100%; max-width:720px; }
+.api-section { grid-column:auto; }
+.module-section .mini-table { table-layout:fixed; }
+.module-section .module-col, .module-section .module-name-cell { width:var(--module-name-width, 96px); white-space:nowrap; }
+.module-section .module-name { white-space:nowrap; overflow:visible; }
+.module-section .branch-col { width:auto; }
+.db-section .file-col { width:auto; }
+.db-section .action-col { width:132px; }
+.api-section .mini-table { table-layout:auto; }
+.api-section .api-name-col, .api-section .api-name-cell { min-width:110px; width:auto; }
+.api-section .api-name { display:block; max-width:none; white-space:nowrap; overflow:visible; text-overflow:clip; line-height:1.45; font-weight:700; color:#334155; }
+.api-section .api-action-col { width:148px; }
+.api-section .detail-actions { gap:4px; flex-wrap:nowrap; }
+.api-section .detail-actions .btn-xs { padding-left:6px; padding-right:6px; }
+.detail-pill { display:inline-flex; align-items:center; max-width:100%; padding:3px 8px; border-radius:999px; background:#f1f5f9; color:#475569; font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .detail-pill.db { background:#ecfdf3; color:#15803d; }
 .detail-pill.api { background:#fff7ed; color:#c2410c; }
-.module-name { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700; color:#334155; }
-.file-code { display:inline-block; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.module-name { display:block; max-width:100%; overflow-wrap:anywhere; white-space:normal; line-height:1.45; font-weight:700; color:#334155; }
+.file-code { display:block; max-width:100%; white-space:normal; overflow-wrap:anywhere; line-height:1.45; }
 .branch-link { color:var(--primary); text-decoration:none; cursor:pointer; }
 .branch-link:hover { text-decoration:underline; }
-.branch-link.branch-pill { max-width:160px; overflow:hidden; text-overflow:ellipsis; background:#eff6ff; color:#1d4ed8; text-decoration:none; }
+.branch-link.branch-pill { display:inline-block; max-width:100%; white-space:normal; overflow-wrap:anywhere; line-height:1.45; background:#eff6ff; color:#1d4ed8; text-decoration:none; }
 .branch-link.branch-pill:hover { background:#dbeafe; text-decoration:none; }
-.detail-actions { display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap; }
+.detail-actions { display:flex; gap:6px; justify-content:flex-end; flex-wrap:nowrap; }
+.detail-actions .btn-xs { padding-left:7px; padding-right:7px; }
+.detail-section-actions { display:flex; align-items:center; gap:8px; }
+.inline-detail-input, .inline-detail-select, .inline-detail-textarea {
+  width:100%;
+  border:1px solid #dbe4ef;
+  border-radius:7px;
+  background:#fff;
+  color:var(--text);
+  font-size:12px;
+  font-family:inherit;
+  padding:6px 8px;
+}
+.inline-detail-input:focus, .inline-detail-select:focus, .inline-detail-textarea:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,0.12); }
+.inline-detail-textarea { min-height:104px; max-height:280px; resize:vertical; overflow:auto; font-family:"SF Mono","Menlo","Consolas",monospace; line-height:1.55; tab-size:2; }
+.inline-editor-empty { color:#94a3b8; font-size:12px; padding:12px; border-top:1px solid #eef2f6; }
+.inline-sql-editor, .inline-api-editor { border-top:1px solid #eef2f6; padding:12px; }
+.inline-sql-toolbar, .inline-api-toolbar { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.inline-api-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; }
+.inline-api-grid .wide { grid-column:1 / -1; }
+.inline-editor-section { border:1px solid #e4ebf4; border-radius:8px; background:#fbfdff; padding:10px; margin-top:10px; }
+.inline-editor-section:first-of-type { margin-top:0; }
+.inline-editor-section-title { display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:12px; font-weight:800; color:#334155; }
+.inline-editor-section-title:before { content:""; width:4px; height:14px; border-radius:999px; background:#2dd4bf; }
+.inline-field label { display:block; font-size:11px; font-weight:800; color:#64748b; margin-bottom:4px; }
+.row-status-cell { padding:6px 6px !important; }
+.row-status-wrap { display:flex; align-items:center; gap:5px; min-width:0; }
+.row-status-select {
+  width:100%;
+  min-width:0;
+  padding:4px 18px 4px 8px;
+  border:1px solid #dbe4ef;
+  border-radius:999px;
+  background:#fff;
+  color:#334155;
+  font-size:12px;
+  font-weight:700;
+  font-family:inherit;
+  box-shadow:var(--shadow-sm);
+}
+.row-status-select.ok { border-color:#bbf7d0; background:#f0fdf4; color:#166534; }
+.row-status-select.bad { border-color:#fecaca; background:#fff7f7; color:#b91c1c; }
+.row-status-select.warn { border-color:#fed7aa; background:#fff7ed; color:#c2410c; }
+.row-status-select:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,0.12); }
+.row-demand-status { width:72px; min-width:72px; padding-right:16px; }
+.row-review-note { width:100%; min-width:0; margin-top:5px; padding:4px 8px; border:1px solid #dbe4ef; border-radius:6px; font-size:12px; font-family:inherit; }
+.row-review-note:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,0.12); }
+@media (max-width: 1280px) {
+  .detail-expanded { grid-template-columns:minmax(0, 1fr) minmax(0, 1.1fr); }
+  .api-section { grid-column:1 / -1; max-width:520px; }
+}
+@media (max-width: 980px) {
+  .detail-expanded { grid-template-columns:1fr; }
+  .api-section { max-width:none; }
+  .inline-api-grid { grid-template-columns:1fr; }
+  .inline-api-grid .wide { grid-column:1; }
+}
 
 /* API editor */
-.api-editor-block { background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:12px; }
-.api-editor-block .api-field-row { display:flex; gap:8px; margin-bottom:8px; }
-.api-editor-block .api-field-row .form-group { flex:1; margin-bottom:0; }
-.api-editor-block .api-field-row .form-group.short { flex:0 0 140px; }
-.api-editor-block textarea { font-family:"SF Mono","Menlo","Consolas",monospace; font-size:12px; background:#1e1e1e; color:#d4d4d4; min-height:60px; }
+.api-editor-block { background:#fff; border:1px solid #dbe4ef; border-radius:8px; margin-bottom:14px; overflow:hidden; box-shadow:var(--shadow-sm); }
+.api-editor-header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:11px 14px; background:#f8fbff; border-bottom:1px solid #e3eaf3; }
+.api-editor-title { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800; color:var(--text); }
+.api-editor-title .api-index { display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:#e0f2fe; color:#0369a1; font-size:11px; }
+.api-editor-body { padding:14px; display:grid; gap:12px; }
+.api-editor-section { border:1px solid #e4ebf4; border-radius:8px; background:#fbfdff; padding:12px; }
+.api-editor-section-title { display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:13px; font-weight:800; color:#334155; }
+.api-editor-section-title:before { content:""; width:4px; height:16px; border-radius:999px; background:#2dd4bf; }
+.api-grid { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:10px 12px; }
+.api-field { grid-column:span 4; margin-bottom:0; }
+.api-field.span-6 { grid-column:span 6; }
+.api-field.span-12 { grid-column:1 / -1; }
+.api-field.required label:before { content:"* "; color:var(--danger); }
+.api-editor-block textarea { font-family:inherit; font-size:14px; background:#fff; color:var(--text); min-height:76px; }
+@media (max-width: 900px) {
+  .api-grid { grid-template-columns:1fr; }
+  .api-field, .api-field.span-6, .api-field.span-12 { grid-column:1; }
+}
 
 /* Status tags */
 .status-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
@@ -188,7 +302,35 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .form-row .form-group { flex: 1; }
 .section-title { font-size: 14px; font-weight: 700; color: var(--primary); margin: 20px 0 12px 0; padding-bottom: 6px; border-bottom: 2px solid #dbeafe; }
 .sql-editor-block { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
-.sql-editor-block textarea { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12px; background: #1e1e1e; color: #d4d4d4; min-height: 80px; }
+.sql-editor-block textarea { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12px; background: #111827; color: #e5e7eb; min-height: 80px; }
+.sql-code-textarea {
+  min-height: 132px;
+  max-height: 340px;
+  resize: vertical;
+  overflow: auto;
+  line-height: 1.55;
+  tab-size: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sql-view-section { margin-bottom: 14px; }
+.sql-view-title { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+.sql-view-title label { margin:0; }
+.sql-code-view {
+  max-height: 300px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+  tab-size: 2;
+  padding: 12px 14px;
+  border: 1px solid #1f2937;
+  border-radius: 8px;
+  background: #111827;
+  color: #e5e7eb;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12px;
+}
 
 /* Search & Settings */
 .search-input { padding: 7px 12px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; width: 220px; outline: none; background:#fff; box-shadow:var(--shadow-sm); }
@@ -310,6 +452,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
   </div>
 </div>
 
+<!-- Collection Edit Modal -->
+<div class="modal-overlay" id="collectionModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2 id="collectionModalTitle">编辑清单</h2>
+      <button class="btn btn-sm" onclick="closeCollectionModal()">&#10005;</button>
+    </div>
+    <div class="modal-body" id="collectionModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeCollectionModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveCollectionModal()">保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- Requirement View Modal -->
 <div class="modal-overlay" id="viewReqModal">
   <div class="modal modal-lg">
@@ -417,6 +574,10 @@ var suppressRepoChange = false;
 var currentSearchTerm = '';
 var searchCursorPos = 0;
 var searchWindowId = null;
+var detailEditModes = {};
+var editingCollectionWindowId = null;
+var editingCollectionReqId = null;
+var editingCollectionKind = null;
 
 // ========== Helpers ==========
 function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); }
@@ -433,6 +594,414 @@ function escHtml(s) {
   var d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
+}
+function buildApiResourcePath(apiName) {
+  var name = (apiName || '').trim().replace(/^\/+/, '');
+  return name ? '/' + name : '';
+}
+function syncApiResourcePath(index) {
+  var apiInput = document.getElementById('apiName' + index);
+  var resourceInput = document.getElementById('apiResourcePath' + index);
+  if (!apiInput || !resourceInput) return;
+  resourceInput.value = buildApiResourcePath(apiInput.value);
+}
+function renderSqlViewer(label, sqlText) {
+  return '<div class="sql-view-section">'
+    + '<div class="sql-view-title"><label>' + escHtml(label) + '</label></div>'
+    + '<pre class="sql-code-view"><code>' + escHtml(sqlText || '(空)') + '</code></pre>'
+    + '</div>';
+}
+function selectedAttr(actual, expected) {
+  return actual === expected ? ' selected' : '';
+}
+function statusControlAttrs(windowId, reqId, field) {
+  return ' data-window-id="' + escHtml(windowId) + '" data-req-id="' + escHtml(reqId) + '" data-field="' + field + '" onclick="event.stopPropagation()"';
+}
+function renderBooleanStatusSelect(windowId, req, field, value, trueLabel, falseLabel) {
+  var cls = value ? 'ok' : 'bad';
+  return '<select class="row-status-select ' + cls + '"' + statusControlAttrs(windowId, req.id, field) + ' onchange="saveInlineStatusFromControl(this)">'
+    + '<option value="0"' + (!value ? ' selected' : '') + '>' + falseLabel + '</option>'
+    + '<option value="1"' + (value ? ' selected' : '') + '>' + trueLabel + '</option>'
+    + '</select>';
+}
+function renderReviewStatusCell(windowId, req) {
+  var reviewStatus = req.reviewStatus || '未评审';
+  var cls = reviewStatus === '已评审' ? 'ok' : reviewStatus === '未评审' ? 'bad' : 'warn';
+  return '<div onclick="event.stopPropagation()">'
+    + '<select class="row-status-select ' + cls + '"' + statusControlAttrs(windowId, req.id, 'reviewStatus') + ' onchange="saveInlineStatusFromControl(this)">'
+    + '<option value="未评审"' + selectedAttr(reviewStatus, '未评审') + '>未评审</option>'
+    + '<option value="已评审"' + selectedAttr(reviewStatus, '已评审') + '>已评审</option>'
+    + '<option value="其他"' + selectedAttr(reviewStatus, '其他') + '>其他</option>'
+    + '</select>'
+    + (reviewStatus === '其他' ? '<input class="row-review-note" type="text"' + statusControlAttrs(windowId, req.id, 'reviewStatusNote') + ' value="' + escHtml(req.reviewStatusNote || '') + '" placeholder="其他说明" onblur="saveInlineStatusFromControl(this)">' : '')
+    + '</div>';
+}
+function renderDemandStatusSelect(windowId, req) {
+  var status = req.status || 'normal';
+  var cls = status === 'delayed' ? 'warn' : 'ok';
+  return '<select class="row-status-select ' + cls + ' row-demand-status"' + statusControlAttrs(windowId, req.id, 'status') + ' onchange="saveInlineStatusFromControl(this)" title="需求状态">'
+    + '<option value="normal"' + selectedAttr(status, 'normal') + '>正常</option>'
+    + '<option value="delayed"' + selectedAttr(status, 'delayed') + '>延期</option>'
+    + '</select>';
+}
+function findRequirementById(windowId, reqId) {
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return null;
+  var req = (w.requirements || []).find(function(v) { return v.id === reqId; });
+  return req ? { window: w, req: req } : null;
+}
+function reopenRequirementDetail(reqId) {
+  var detail = document.getElementById('r' + reqId + '-detail');
+  var arrow = document.getElementById('r' + reqId + '-arrow');
+  if (detail) detail.classList.add('open');
+  if (arrow) arrow.classList.add('open');
+}
+async function persistInlineRequirement(windowId, reqId, keepOpen, message) {
+  var found = findRequirementById(windowId, reqId);
+  if (!found) return false;
+  if (!await saveData()) return false;
+  showToast(message || '内容已保存', 'success');
+  renderMain();
+  if (keepOpen && (found.req.status || 'normal') !== 'delayed') reopenRequirementDetail(reqId);
+  return true;
+}
+async function saveInlineStatusFromControl(el) {
+  var windowId = el.getAttribute('data-window-id');
+  var reqId = el.getAttribute('data-req-id');
+  var field = el.getAttribute('data-field');
+  var found = findRequirementById(windowId, reqId);
+  if (!found) return;
+  var req = found.req;
+  var detailEl = document.getElementById('r' + reqId + '-detail');
+  var wasOpen = !!(detailEl && detailEl.classList.contains('open'));
+
+  if (field === 'sitReport' || field === 'uatReport' || field === 'codeMerged') {
+    req[field] = el.value === '1';
+  } else if (field === 'reviewStatus') {
+    req.reviewStatus = el.value;
+    if (el.value !== '其他') req.reviewStatusNote = '';
+  } else if (field === 'reviewStatusNote') {
+    req.reviewStatusNote = el.value.trim();
+  } else if (field === 'status') {
+    req.status = el.value;
+  }
+
+  await persistInlineRequirement(windowId, reqId, wasOpen, '状态已保存');
+}
+function collectionNameForKind(kind) {
+  if (kind === 'module') return 'modules';
+  if (kind === 'sql') return 'sqlFiles';
+  if (kind === 'api') return 'apis';
+  return '';
+}
+function detailEditKey(reqId, kind) {
+  return reqId + ':' + kind;
+}
+function isDetailSectionEditing(reqId, kind) {
+  return !!detailEditModes[detailEditKey(reqId, kind)];
+}
+function setDetailSectionEditing(reqId, kind, editing) {
+  var key = detailEditKey(reqId, kind);
+  if (editing) detailEditModes[key] = true;
+  else delete detailEditModes[key];
+  renderMain();
+  reopenRequirementDetail(reqId);
+}
+function syncInlineApiResourcePath(el) {
+  var wrap = el.closest('.inline-api-editor');
+  if (!wrap) return;
+  var resourceInput = wrap.querySelector('[data-field="resourcePath"]');
+  if (resourceInput) resourceInput.value = buildApiResourcePath(el.value);
+}
+async function saveInlineCollectionField(el) {
+  var windowId = el.getAttribute('data-window-id');
+  var reqId = el.getAttribute('data-req-id');
+  var kind = el.getAttribute('data-kind');
+  var field = el.getAttribute('data-field');
+  var index = parseInt(el.getAttribute('data-index'), 10);
+  var found = findRequirementById(windowId, reqId);
+  var collectionName = collectionNameForKind(kind);
+  if (!found || !collectionName || isNaN(index)) return;
+  var list = found.req[collectionName] || [];
+  if (!list[index]) return;
+  list[index][field] = el.value;
+  if (kind === 'module' && field === 'name') list[index].full_name = el.value;
+  if (kind === 'api' && field === 'apiName') {
+    var resourcePath = buildApiResourcePath(el.value);
+    list[index].resourcePath = resourcePath;
+    var wrap = el.closest('.inline-api-editor');
+    var resourceInput = wrap && wrap.querySelector('[data-field="resourcePath"]');
+    if (resourceInput) resourceInput.value = resourcePath;
+  }
+  found.req[collectionName] = list;
+  await persistInlineRequirement(windowId, reqId, true, '内容已保存');
+}
+async function addInlineCollectionItem(windowId, reqId, kind) {
+  var found = findRequirementById(windowId, reqId);
+  var collectionName = collectionNameForKind(kind);
+  if (!found || !collectionName) return;
+  var list = found.req[collectionName] || [];
+  if (kind === 'module') list.push({ name: '', branch: '', full_name: '' });
+  if (kind === 'sql') list.push({ dbName: 'db_cm', query: '', execute: '', rollback: '' });
+  if (kind === 'api') list.push({ apiName: '', apiGroup: '', apiVersion: '1.0', description: '', accessMethod: 'REST接入', outTemplate: 'REST负载', outInstance: '', appName: '', resourcePath: '', drsServiceType: 'concentrated', messageTransform: '禁用' });
+  found.req[collectionName] = list;
+  detailEditModes[detailEditKey(reqId, kind)] = true;
+  await persistInlineRequirement(windowId, reqId, true, '已添加');
+}
+async function deleteInlineCollectionItem(windowId, reqId, kind, index) {
+  if (!confirm('确定删除这一项吗？')) return;
+  var found = findRequirementById(windowId, reqId);
+  var collectionName = collectionNameForKind(kind);
+  if (!found || !collectionName) return;
+  var list = found.req[collectionName] || [];
+  list.splice(index, 1);
+  found.req[collectionName] = list;
+  await persistInlineRequirement(windowId, reqId, true, '已删除');
+}
+function inlineCollectionAttrs(windowId, reqId, kind, index, field) {
+  return ' data-window-id="' + escHtml(windowId) + '" data-req-id="' + escHtml(reqId) + '" data-kind="' + kind + '" data-index="' + index + '" data-field="' + field + '"';
+}
+function renderDetailSectionActions(windowId, req, kind, count, editing) {
+  return '<span class="detail-section-actions">'
+    + '<button class="btn btn-xs" onclick="openCollectionModal(\'' + windowId + '\',\'' + req.id + '\',\'' + kind + '\')">编辑</button>'
+    + '<span class="detail-count">' + count + '</span></span>';
+}
+function buildInlineModuleRepoOptions(module) {
+  var m = module || {};
+  var repoKey = m.full_name || m.name || '';
+  var repoHtml = '<option value="">' + (githubRepos.length > 0 ? '-- 选择项目 --' : '-- 先获取项目列表 --') + '</option>';
+  var found = false;
+  githubRepos.forEach(function(r) {
+    var selected = (r.full_name === repoKey || r.name === m.name) ? ' selected' : '';
+    if (selected) found = true;
+    repoHtml += '<option value="' + escHtml(r.full_name) + '"' + selected + '>' + escHtml(r.name) + '</option>';
+  });
+  if (repoKey && !found) {
+    repoHtml = '<option value="' + escHtml(repoKey) + '" selected>' + escHtml(m.name || repoKey) + ' (手动)</option>' + repoHtml;
+  }
+  return repoHtml;
+}
+async function onInlineModuleRepoChange(el) {
+  if (suppressRepoChange) return;
+  var windowId = el.getAttribute('data-window-id');
+  var reqId = el.getAttribute('data-req-id');
+  var index = parseInt(el.getAttribute('data-index'), 10);
+  var repoFull = el.value.trim();
+  var found = findRequirementById(windowId, reqId);
+  if (!found || isNaN(index)) return;
+  var modules = found.req.modules || [];
+  if (!modules[index]) return;
+
+  var repo = githubRepos.find(function(r) { return r.full_name === repoFull; });
+  modules[index].name = repo ? repo.name : repoFull;
+  modules[index].full_name = repo ? repo.full_name : repoFull;
+  modules[index].branch = '';
+  found.req.modules = modules;
+
+  var branchSel = el.closest('tr') && el.closest('tr').querySelector('[data-field="branch"]');
+  if (branchSel) {
+    branchSel.disabled = !!repoFull;
+    branchSel.innerHTML = repoFull ? '<option value="">正在加载...</option>' : '<option value="">-- 选择项目 --</option>';
+  }
+
+  await persistInlineRequirement(windowId, reqId, true, '模块已保存');
+  if (!repoFull) return;
+
+  try {
+    if (!branchCache[repoFull]) {
+      if (!branchLoading[repoFull]) {
+        branchLoading[repoFull] = loadBranchesForRepo(repoFull).then(function(branches) {
+          branchCache[repoFull] = branches;
+          delete branchLoading[repoFull];
+          return branches;
+        }).catch(function(err) {
+          delete branchLoading[repoFull];
+          throw err;
+        });
+      }
+      await branchLoading[repoFull];
+    }
+    renderMain();
+    reopenRequirementDetail(reqId);
+  } catch (err) {
+    showToast('分支加载失败：' + err.message, 'error');
+    renderMain();
+    reopenRequirementDetail(reqId);
+  }
+}
+function renderInlineModuleSection(windowId, req) {
+  var modules = req.modules || [];
+  var maxModuleWidth = modules.reduce(function(max, m) {
+    return Math.max(max, estimateInlineWidth(m.name || '模块'));
+  }, 48);
+  var moduleWidth = Math.max(70, Math.min(180, maxModuleWidth + 26));
+  var rows = modules.map(function(m) {
+    var displayName = (m.name || '').indexOf('/') > -1 ? (m.name || '').split('/').pop() : (m.name || '');
+    var url = getBranchUrl(m.name || '', m.branch || '', m.full_name || '');
+    return '<tr><td class="module-name-cell"><span class="module-name">' + escHtml(displayName || '-') + '</span></td>'
+      + '<td>' + (m.branch ? '<a class="branch-link branch-pill" href="' + url + '" target="_blank" rel="noopener noreferrer">' + escHtml(m.branch) + '</a>' : '-') + '</td></tr>';
+  }).join('');
+  return '<div class="detail-section module-section" style="--module-name-width:' + moduleWidth + 'px"><div class="detail-section-title"><span>&#128736; 代码模块</span>' + renderDetailSectionActions(windowId, req, 'module', modules.length) + '</div>'
+    + (rows ? '<table class="mini-table"><thead><tr><th class="module-col">模块</th><th>分支</th></tr></thead><tbody>' + rows + '</tbody></table>' : '<div class="inline-editor-empty">暂无代码模块，点击“编辑”后录入。</div>')
+    + '</div>';
+}
+function renderInlineSqlSection(windowId, req) {
+  var sqlFiles = req.sqlFiles || [];
+  var rows = sqlFiles.map(function(s, i) {
+    var fn = (s.dbName || 'db_cm') + req.name + '.sql';
+    return '<tr><td><code class="file-code">' + escHtml(fn) + '</code></td>'
+      + '<td><span class="detail-actions"><button class="btn btn-xs" onclick="viewSqlOnly(\'' + windowId + '\',\'' + req.id + '\',' + i + ')">查看SQL</button><button class="btn btn-xs btn-primary" onclick="downloadSqlById(\'' + windowId + '\',\'' + req.id + '\',' + i + ')">下载</button></span></td></tr>';
+  }).join('');
+  return '<div class="detail-section db-section"><div class="detail-section-title"><span>&#128451; 数据库清单</span>' + renderDetailSectionActions(windowId, req, 'sql', sqlFiles.length) + '</div>'
+    + (rows ? '<table class="mini-table"><thead><tr><th>SQL文件</th><th class="action-col">操作</th></tr></thead><tbody>' + rows + '</tbody></table>' : '<div class="inline-editor-empty">暂无SQL，点击“编辑”后录入。</div>')
+    + '</div>';
+}
+function renderInlineApiSection(windowId, req) {
+  var apis = req.apis || [];
+  var rows = apis.map(function(a, i) {
+    return '<tr><td class="api-name-cell"><span class="api-name">' + escHtml(a.apiName || '-') + '</span></td>'
+      + '<td><span class="detail-actions"><button class="btn btn-xs" onclick="viewApiOnly(\'' + windowId + '\',\'' + req.id + '\',' + i + ')">查看</button><button class="btn btn-xs btn-primary" onclick="downloadApiTxt(\'' + windowId + '\',\'' + req.id + '\',' + i + ')">下载TXT</button></span></td></tr>';
+  }).join('');
+  return '<div class="detail-section api-section"><div class="detail-section-title"><span>&#128268; API</span>' + renderDetailSectionActions(windowId, req, 'api', apis.length) + '</div>'
+    + (rows ? '<table class="mini-table"><thead><tr><th class="api-name-col">API</th><th class="api-action-col">操作</th></tr></thead><tbody>' + rows + '</tbody></table>' : '<div class="inline-editor-empty">暂无API，点击“编辑”后录入。</div>')
+    + '</div>';
+}
+function collectionKindTitle(kind) {
+  if (kind === 'module') return '代码模块';
+  if (kind === 'sql') return '数据库清单';
+  if (kind === 'api') return 'API';
+  return '清单';
+}
+function buildModuleEditorRow(index, module) {
+  var m = module || {};
+  var repoHtml = buildInlineModuleRepoOptions(m);
+  var repoFull = m.full_name || m.name || '';
+  return '<div class="form-row" style="margin-bottom:4px" id="modRow' + index + '">'
+    + '<div class="form-group"><label>模块</label><select id="modName' + index + '" onchange="onModuleRepoChange(' + index + ')" style="width:100%">' + repoHtml + '</select></div>'
+    + '<div class="form-group"><label>分支</label><select id="modBranch' + index + '" style="width:100%">' + buildBranchOptionsForForm(repoFull, m.branch) + '</select></div>'
+    + '<div style="display:flex;align-items:flex-end;padding-bottom:14px"><button class="btn btn-xs btn-danger" onclick="document.getElementById(\'modRow' + index + '\').remove()">&#10005;</button></div>'
+    + '</div>';
+}
+function buildCollectionEditorBody(req, kind) {
+  if (kind === 'module') {
+    var modules = req.modules || [];
+    moduleCounter = modules.length;
+    var moduleRows = modules.map(function(m, i) { return buildModuleEditorRow(i, m); }).join('');
+    return '<div class="section-title">&#128736; 代码模块</div>'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+      + '<button class="btn btn-sm btn-primary" onclick="fetchRepos()">&#128260; 获取项目列表</button>'
+      + '<span id="repoFetchStatus" style="font-size:12px;color:#999"></span></div>'
+      + '<div id="modulesContainer">' + (moduleRows || '<p style="color:#999;font-size:12px;">暂无模块，点击下方按钮添加</p>') + '</div>'
+      + '<button class="btn btn-sm" style="margin-top:8px" onclick="addModuleRow()">+ 添加模块</button>';
+  }
+  if (kind === 'sql') {
+    var sqlFiles = req.sqlFiles || [];
+    sqlCounter = sqlFiles.length;
+    var sqlRows = sqlFiles.map(function(s, i) { return buildSqlEditor(i, s); }).join('');
+    return '<div class="section-title">&#128451; 数据库清单</div>'
+      + '<div id="sqlContainer">' + (sqlRows || '<p style="color:#999;font-size:12px;">暂无SQL文件</p>') + '</div>'
+      + '<button class="btn btn-sm" style="margin-top:8px" onclick="addSqlFile()">+ 添加SQL文件</button>';
+  }
+  if (kind === 'api') {
+    apiCounter = (req.apis || []).length;
+    return renderApiSection(req);
+  }
+  return '';
+}
+function openCollectionModal(windowId, reqId, kind) {
+  var found = findRequirementById(windowId, reqId);
+  if (!found) return;
+  editingCollectionWindowId = windowId;
+  editingCollectionReqId = reqId;
+  editingCollectionKind = kind;
+  document.getElementById('collectionModalTitle').textContent = '编辑' + collectionKindTitle(kind) + '：' + found.req.name;
+  document.getElementById('collectionModalBody').innerHTML = buildCollectionEditorBody(found.req, kind);
+  document.getElementById('collectionModal').classList.add('show');
+}
+function closeCollectionModal() {
+  document.getElementById('collectionModal').classList.remove('show');
+  document.getElementById('collectionModalBody').innerHTML = '';
+  editingCollectionWindowId = null;
+  editingCollectionReqId = null;
+  editingCollectionKind = null;
+}
+function collectModuleEditorRows() {
+  var modules = [];
+  document.querySelectorAll('#modulesContainer .form-row').forEach(function(row) {
+    var selects = row.querySelectorAll('select');
+    var selVal = selects.length >= 1 ? selects[0].value.trim() : '';
+    var mb = selects.length >= 2 ? selects[1].value.trim() : '';
+    if (!selVal) return;
+    var displayName = selVal;
+    var apiId = selVal;
+    for (var j = 0; j < githubRepos.length; j++) {
+      if (githubRepos[j].full_name === selVal) {
+        displayName = githubRepos[j].name;
+        apiId = githubRepos[j].full_name;
+        break;
+      }
+    }
+    modules.push({ name: displayName, branch: mb, full_name: apiId });
+  });
+  return modules;
+}
+function collectSqlEditorRows() {
+  var sqlFiles = [];
+  document.querySelectorAll('#sqlContainer .sql-editor-block').forEach(function(block) {
+    var dbSel = block.querySelector('select');
+    var textareas = block.querySelectorAll('textarea');
+    if (dbSel && textareas.length >= 3 && dbSel.value) {
+      sqlFiles.push({ dbName: dbSel.value, query: textareas[0].value, execute: textareas[1].value, rollback: textareas[2].value });
+    }
+  });
+  return sqlFiles;
+}
+function collectApiEditorRows() {
+  var apis = [];
+  document.querySelectorAll('#apiContainer .api-editor-block').forEach(function(block) {
+    var idx = block.getAttribute('data-index') || (block.id || '').replace('apiBlock', '');
+    function apiVal(prefix) {
+      var el = document.getElementById(prefix + idx);
+      return el ? el.value.trim() : '';
+    }
+    var apiName = apiVal('apiName');
+    apis.push({
+      apiName: apiName,
+      apiGroup: apiVal('apiGroup'),
+      apiVersion: apiVal('apiVersion'),
+      description: apiVal('apiDesc'),
+      accessMethod: apiVal('apiAccessMethod'),
+      outTemplate: apiVal('apiOutTemplate') || 'REST负载',
+      outInstance: apiVal('apiOutInstance'),
+      appName: apiVal('apiAppName'),
+      resourcePath: apiVal('apiResourcePath') || buildApiResourcePath(apiName),
+      drsServiceType: apiVal('apiDrsType'),
+      messageTransform: apiVal('apiMsgTransform')
+    });
+  });
+  return apis;
+}
+async function saveCollectionModal() {
+  var found = findRequirementById(editingCollectionWindowId, editingCollectionReqId);
+  if (!found) return;
+  if (editingCollectionKind === 'module') found.req.modules = collectModuleEditorRows();
+  if (editingCollectionKind === 'sql') found.req.sqlFiles = collectSqlEditorRows();
+  if (editingCollectionKind === 'api') found.req.apis = collectApiEditorRows();
+  var reqId = editingCollectionReqId;
+  var savedKindTitle = collectionKindTitle(editingCollectionKind);
+  if (!await saveData()) return;
+  closeCollectionModal();
+  renderMain();
+  reopenRequirementDetail(reqId);
+  showToast(savedKindTitle + '已保存', 'success');
+}
+function estimateInlineWidth(s) {
+  var w = 0;
+  s = s || '';
+  for (var i = 0; i < s.length; i++) {
+    w += s.charCodeAt(i) > 255 ? 13 : 7;
+  }
+  return w;
 }
 function syncSearchWindow() {
   if (searchWindowId !== selectedWindowId) {
@@ -663,13 +1232,13 @@ function renderMain(keepSearchFocus) {
   // Delayed summary
   if (delayed > 0) {
     html += '<div class="card"><div class="card-header"><h3>&#9888; 延期需求 <span class="badge">' + delayed + '</span></h3></div>'
-      + '<div class="card-body">'
+      + '<div class="card-body"><div class="delayed-list">'
       + delayedReqs.map(function(r) {
-          return '<span style="display:inline-block;margin:2px 12px 2px 0;font-size:13px">'
-            + escHtml(r.name) + ' <span class="status-tag no" style="font-size:10px">' + escHtml(r.number) + '</span>'
-            + ' <button class="btn btn-xs" onclick="restoreRequirement(\'' + win.id + '\',\'' + r.id + '\')">恢复</button></span>';
+          return '<div class="delayed-card" onclick="viewRequirement(\'' + win.id + '\',\'' + r.id + '\')" title="查看需求详情">'
+            + '<div class="delayed-info"><span class="delayed-name">' + escHtml(r.name) + '</span><span class="status-tag no">' + escHtml(r.number) + '</span></div>'
+            + '<button class="btn btn-xs" onclick="event.stopPropagation();restoreRequirement(\'' + win.id + '\',\'' + r.id + '\')">恢复</button></div>';
         }).join('')
-      + '</div></div>';
+      + '</div></div></div>';
   }
 
   // Requirements table
@@ -690,15 +1259,15 @@ function renderMain(keepSearchFocus) {
     html += '<p style="color:#999;font-size:13px;text-align:center;padding:40px">暂无需求</p>';
   } else {
     html += '<div class="req-table-wrap"><table class="req-table"><thead><tr>'
-      + '<th style="width:30px"></th><th>需求</th><th>解决人</th><th>业务</th>'
-      + '<th>SIT</th><th>UAT</th><th>评审</th><th>合并</th><th style="width:130px">操作</th></tr></thead><tbody>';
+      + '<th style="width:34px"></th><th>需求</th><th>解决人</th><th>业务</th>'
+      + '<th>SIT</th><th>UAT</th><th>评审</th><th>合并</th><th style="width:196px">操作</th></tr></thead><tbody>';
 
     normalReqs.forEach(function(r, idx) {
       var uid = 'r' + r.id;
       var reviewTag = r.reviewStatus === '已评审' ? 'ok' : r.reviewStatus === '未评审' ? 'bad' : 'warn';
       var reviewText = r.reviewStatus === '其他' ? (r.reviewStatusNote || '其他') : r.reviewStatus;
       var hasApis = r.apis && r.apis.length > 0;
-      var hasDetail = (r.modules && r.modules.length > 0) || (r.sqlFiles && r.sqlFiles.length > 0) || hasApis;
+      var hasDetail = true;
 
       var rowClick = hasDetail ? ' onclick="toggleReqRow(\'' + uid + '\')" style="cursor:pointer"' : '';
       html += '<tr class="normal-row" id="' + uid + '"' + rowClick + '>'
@@ -706,51 +1275,23 @@ function renderMain(keepSearchFocus) {
         + '<td class="req-name-cell">' + escHtml(r.name) + '<span class="req-num">' + escHtml(r.number) + '</span></td>'
         + '<td>' + escHtml(r.resolver || '-') + '</td>'
         + '<td>' + escHtml(r.businessPerson || '-') + '</td>'
-        + '<td><span class="dot ' + (r.sitReport ? 'green' : 'red') + '"></span>' + (r.sitReport ? '已收集' : '未收集') + '</td>'
-        + '<td><span class="dot ' + (r.uatReport ? 'green' : 'red') + '"></span>' + (r.uatReport ? '已收集' : '未收集') + '</td>'
-        + '<td><span class="dot ' + (r.reviewStatus === '已评审' ? 'green' : r.reviewStatus === '未评审' ? 'red' : 'orange') + '"></span>' + escHtml(reviewText) + '</td>'
-        + '<td><span class="dot ' + (r.codeMerged ? 'green' : 'red') + '"></span>' + (r.codeMerged ? '已合并' : '未合并') + '</td>'
+        + '<td class="row-status-cell">' + renderBooleanStatusSelect(win.id, r, 'sitReport', !!r.sitReport, '已收集', '未收集') + '</td>'
+        + '<td class="row-status-cell">' + renderBooleanStatusSelect(win.id, r, 'uatReport', !!r.uatReport, '已收集', '未收集') + '</td>'
+        + '<td class="row-status-cell">' + renderReviewStatusCell(win.id, r) + '</td>'
+        + '<td class="row-status-cell">' + renderBooleanStatusSelect(win.id, r, 'codeMerged', !!r.codeMerged, '已合并', '未合并') + '</td>'
         + '<td class="cell-actions" onclick="event.stopPropagation()">'
-        + '<button class="btn btn-xs" onclick="viewRequirement(\'' + win.id + '\',\'' + r.id + '\')">查看</button> '
+        + renderDemandStatusSelect(win.id, r) + ' '
         + '<button class="btn btn-xs" onclick="openReqModal(\'' + win.id + '\',\'' + r.id + '\')">编辑</button> '
         + '<button class="btn btn-xs btn-danger" onclick="deleteRequirement(\'' + win.id + '\',\'' + r.id + '\')">删除</button>'
         + '</td></tr>';
 
       if (hasDetail) {
-        html += '<tr class="row-detail" id="' + uid + '-detail"><td></td><td colspan="8">'
-          + '<div class="detail-expanded">';
-        if (r.modules && r.modules.length > 0) {
-          html += '<div class="detail-section"><div class="detail-section-title"><span>&#128736; 代码模块</span><span class="detail-count">' + r.modules.length + '</span></div>'
-            + '<table class="mini-table"><thead><tr><th>模块</th><th>分支</th></tr></thead><tbody>';
-          r.modules.forEach(function(m) {
-            var dn = m.name.indexOf('/') > -1 ? m.name.split('/').pop() : m.name;
-            var url = getBranchUrl(m.name, m.branch, m.full_name);
-            html += '<tr><td><span class="module-name" title="' + escHtml(dn) + '">' + escHtml(dn) + '</span></td><td>' + (m.branch ? '<a class="branch-link detail-pill branch-pill" href="' + url + '" target="_blank" rel="noopener noreferrer" title="跳转到仓库分支">' + escHtml(m.branch) + '</a>' : '<span class="detail-pill">无分支</span>') + '</td></tr>';
-          });
-          html += '</tbody></table></div>';
-        }
-        if (r.sqlFiles && r.sqlFiles.length > 0) {
-          html += '<div class="detail-section" style="flex:2"><div class="detail-section-title"><span>&#128451; 数据库清单</span><span class="detail-count">' + r.sqlFiles.length + '</span></div>'
-            + '<table class="mini-table"><thead><tr><th>SQL文件</th><th>数据库</th><th>操作</th></tr></thead><tbody>';
-          r.sqlFiles.forEach(function(s, i) {
-            var fn = s.dbName + r.name + '.sql';
-            html += '<tr><td><code class="file-code">' + escHtml(fn) + '</code></td><td><span class="detail-pill db">' + escHtml(s.dbName) + '</span></td><td><span class="detail-actions">'
-              + '<button class="btn btn-xs" onclick="viewSqlOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看SQL</button> '
-              + '<button class="btn btn-xs btn-primary" onclick="downloadSqlById(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载</button></span></td></tr>';
-          });
-          html += '</tbody></table></div>';
-        }
-        if (hasApis) {
-          html += '<div class="detail-section" style="flex:0 1 300px"><div class="detail-section-title"><span>&#128268; API</span><span class="detail-count">' + r.apis.length + '</span></div>'
-            + '<table class="mini-table"><thead><tr><th>API</th><th>操作</th></tr></thead><tbody>';
-          r.apis.forEach(function(a, i) {
-            html += '<tr><td><span class="module-name" title="' + escHtml(a.apiName || '-') + '">' + escHtml(a.apiName || '-') + '</span></td>'
-              + '<td><span class="detail-actions"><button class="btn btn-xs" onclick="viewApiOnly(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">查看</button> '
-              + '<button class="btn btn-xs btn-primary" onclick="downloadApiTxt(\'' + win.id + '\',\'' + r.id + '\',' + i + ')">下载TXT</button></span></td></tr>';
-          });
-          html += '</tbody></table></div>';
-        }
-        html += '</div></td></tr>';
+        html += '<tr class="row-detail" id="' + uid + '-detail"><td colspan="9">'
+          + '<div class="detail-expanded">'
+          + renderInlineModuleSection(win.id, r)
+          + renderInlineSqlSection(win.id, r)
+          + renderInlineApiSection(win.id, r)
+          + '</div></td></tr>';
       }
     });
 
@@ -800,9 +1341,9 @@ function viewRequirement(windowId, reqId) {
       return '<div class="sql-editor-block"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
         + '<h4 style="margin:0;font-size:13px;color:var(--primary)">SQL文件 #' + (i+1) + ' — 数据库：' + escHtml(s.dbName) + '</h4>'
         + '<button class="btn btn-xs btn-primary" onclick="downloadSqlById(\'' + windowId + '\',\'' + reqId + '\',' + i + ')">下载</button></div>'
-        + '<div class="form-group"><label>——查询</label><textarea readonly rows="3">' + escHtml(s.query || '(空)') + '</textarea></div>'
-        + '<div class="form-group"><label>——执行</label><textarea readonly rows="3">' + escHtml(s.execute || '(空)') + '</textarea></div>'
-        + '<div class="form-group"><label>——回退</label><textarea readonly rows="3">' + escHtml(s.rollback || '(空)') + '</textarea></div></div>';
+        + renderSqlViewer('——查询 SQL脚本', s.query)
+        + renderSqlViewer('——执行 SQL脚本', s.execute)
+        + renderSqlViewer('——回退 SQL脚本', s.rollback) + '</div>';
     }).join('');
   } else {
     sqlHtml = '<p style="color:#999;font-size:13px;">暂无SQL文件</p>';
@@ -857,7 +1398,7 @@ function viewRequirement(windowId, reqId) {
 function openReqModal(windowId, editReqId) {
   editingReqWindowId = windowId;
   editingReqId = editReqId || null;
-  moduleCounter = 0; sqlCounter = 0;
+  moduleCounter = 0; sqlCounter = 0; apiCounter = 0;
   document.getElementById('reqModal').classList.add('show');
   document.getElementById('reqModalTitle').textContent = editReqId ? '编辑需求' : '新建需求';
   document.getElementById('btnDeleteReq').style.display = editReqId ? '' : 'none';
@@ -869,67 +1410,15 @@ function openReqModal(windowId, editReqId) {
   }
   document.getElementById('reqModalBody').innerHTML = buildReqForm(req);
   if (req && req.modules) moduleCounter = req.modules.length;
+  if (req && req.sqlFiles) sqlCounter = req.sqlFiles.length;
+  if (req && req.apis) apiCounter = req.apis.length;
 }
 
 function buildReqForm(req) {
-  var modules = req ? (req.modules || []) : [];
-  var sqlFiles = req ? (req.sqlFiles || []) : [];
-  var isEdit = !!req;
-
-  var modRows = modules.map(function(m, i) {
-    var repoHtml = '<option value="">-- 选择项目 --</option>';
-    var found = false;
-    var repoKey = m.full_name || m.name;
-    githubRepos.forEach(function(r) {
-      var sel = (r.full_name === repoKey || r.name === m.name) ? ' selected' : '';
-      if (sel) found = true;
-      repoHtml += '<option value="' + escHtml(r.full_name) + '"' + sel + '>' + escHtml(r.name) + '</option>';
-    });
-    if (m.name && !found) {
-      repoHtml = '<option value="' + escHtml(m.name) + '" selected>' + escHtml(m.name) + ' (手动)</option>' + repoHtml;
-    }
-    var repoFull = m.full_name || m.name;
-    var branchOpts = buildBranchOptionsForForm(repoFull, m.branch);
-    return '<div class="form-row" style="margin-bottom:4px" id="modRow' + i + '">'
-      + '<div class="form-group"><label>项目</label><select id="modName' + i + '" onchange="onModuleRepoChange(' + i + ')" style="width:100%">' + repoHtml + '</select></div>'
-      + '<div class="form-group"><label>分支</label><select id="modBranch' + i + '" style="width:100%">' + branchOpts + '</select></div>'
-      + '<div style="display:flex;align-items:flex-end;padding-bottom:14px"><button class="btn btn-xs btn-danger" onclick="document.getElementById(\'modRow' + i + '\').remove()">&#10005;</button></div>'
-      + '</div>';
-  }).join('');
-
-  var sqlRows = sqlFiles.map(function(s, i) { return buildSqlEditor(i, s); }).join('');
-
-  var statusHtml = '';
-  if (isEdit) {
-    statusHtml = '<div class="section-title">&#128260; 上线状态</div>'
-      + '<div class="form-group"><label>需求状态</label><select id="reqStatus">'
-      + '<option value="normal"' + (req && req.status === 'normal' ? ' selected' : '') + '>正常上线</option>'
-      + '<option value="delayed"' + (req && req.status === 'delayed' ? ' selected' : '') + '>延期</option>'
-      + '</select></div>';
-  }
-
   return '<div class="form-row"><div class="form-group"><label>需求名称 *</label><input type="text" id="reqName" value="' + escHtml(req ? req.name : '') + '"></div>'
     + '<div class="form-group"><label>需求编号 *</label><input type="text" id="reqNumber" value="' + escHtml(req ? req.number : '') + '"></div></div>'
     + '<div class="form-row"><div class="form-group"><label>解决人</label><input type="text" id="reqResolver" value="' + escHtml(req ? req.resolver : '') + '"></div>'
-    + '<div class="form-group"><label>业务人员</label><input type="text" id="reqBizPerson" value="' + escHtml(req ? req.businessPerson : '') + '"></div></div>'
-    + '<div class="section-title">&#128736; 涉及代码模块与开发分支</div>'
-    + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
-    + '<button class="btn btn-sm btn-primary" onclick="fetchRepos()">&#128260; 获取项目列表</button>'
-    + '<span id="repoFetchStatus" style="font-size:12px;color:#999"></span></div>'
-    + '<div id="modulesContainer">' + (modRows || '<p style="color:#999;font-size:12px;">暂无模块，点击下方按钮添加</p>') + '</div>'
-    + '<button class="btn btn-sm" style="margin-top:8px" onclick="addModuleRow()">+ 添加模块</button>'
-    + '<div class="section-title">&#128451; SQL 文件</div>'
-    + '<div id="sqlContainer">' + (sqlRows || '<p style="color:#999;font-size:12px;">暂无SQL文件</p>') + '</div>'
-    + '<button class="btn btn-sm" style="margin-top:8px" onclick="addSqlFile()">+ 添加SQL文件</button>'
-    + renderApiSection(req)
-    + '<div class="section-title">&#128203; 报告与评审</div>'
-    + '<div class="form-row"><div class="form-group"><label>SIT 测试报告</label><select id="reqSitReport"><option value="0"' + (req && !req.sitReport ? ' selected' : '') + '>未收集</option><option value="1"' + (req && req.sitReport ? ' selected' : '') + '>已收集</option></select></div>'
-    + '<div class="form-group"><label>UAT 测试报告</label><select id="reqUatReport"><option value="0"' + (req && !req.uatReport ? ' selected' : '') + '>未收集</option><option value="1"' + (req && req.uatReport ? ' selected' : '') + '>已收集</option></select></div></div>'
-    + '<div class="form-row"><div class="form-group"><label>上线评审状态</label><select id="reqReviewStatus" onchange="toggleReviewNote()"><option value="未评审"' + (req && req.reviewStatus === '未评审' ? ' selected' : '') + '>未评审</option><option value="已评审"' + (req && req.reviewStatus === '已评审' ? ' selected' : '') + '>已评审</option><option value="其他"' + (req && req.reviewStatus === '其他' ? ' selected' : '') + '>其他</option></select></div>'
-    + '<div class="form-group" id="reviewNoteGroup" style="display:' + (req && req.reviewStatus === '其他' ? '' : 'none') + '"><label>其他说明</label><input type="text" id="reqReviewNote" value="' + escHtml(req ? (req.reviewStatusNote || '') : '') + '"></div>'
-    + '<div class="form-group"><label>代码是否已合并到上线分支</label><select id="reqCodeMerged"><option value="0"' + (req && !req.codeMerged ? ' selected' : '') + '>未合并</option><option value="1"' + (req && req.codeMerged ? ' selected' : '') + '>已合并</option></select></div></div>'
-    + statusHtml
-    + (!isEdit ? '<input type="hidden" id="reqStatus" value="normal">' : '');
+    + '<div class="form-group"><label>业务人员</label><input type="text" id="reqBizPerson" value="' + escHtml(req ? req.businessPerson : '') + '"></div></div>';
 }
 
 function buildBranchOptionsForForm(repoFull, selectedBranch) {
@@ -959,9 +1448,9 @@ function buildSqlEditor(index, sql) {
     + '<option value="db_core"' + (sql && sql.dbName === 'db_core' ? ' selected' : '') + '>db_core</option>'
     + '<option value="db_ac"' + (sql && sql.dbName === 'db_ac' ? ' selected' : '') + '>db_ac</option></select></div>'
     + '<button class="btn btn-xs btn-danger" style="margin-top:18px" onclick="document.getElementById(\'sqlBlock' + index + '\').remove()">&#10005; 删除此SQL</button></div>'
-    + '<div class="form-group"><label>——查询 SQL脚本</label><textarea id="sqlQuery' + index + '" placeholder="SELECT ...">' + escHtml(sql ? (sql.query || '') : '') + '</textarea></div>'
-    + '<div class="form-group"><label>——执行 SQL脚本</label><textarea id="sqlExecute' + index + '" placeholder="INSERT/UPDATE/ALTER ...">' + escHtml(sql ? (sql.execute || '') : '') + '</textarea></div>'
-    + '<div class="form-group"><label>——回退 SQL脚本</label><textarea id="sqlRollback' + index + '" placeholder="回退SQL ...">' + escHtml(sql ? (sql.rollback || '') : '') + '</textarea></div></div>';
+    + '<div class="form-group"><label>——查询 SQL脚本</label><textarea class="sql-code-textarea" id="sqlQuery' + index + '" placeholder="SELECT ..." spellcheck="false" wrap="soft">' + escHtml(sql ? (sql.query || '') : '') + '</textarea></div>'
+    + '<div class="form-group"><label>——执行 SQL脚本</label><textarea class="sql-code-textarea" id="sqlExecute' + index + '" placeholder="INSERT/UPDATE/ALTER ..." spellcheck="false" wrap="soft">' + escHtml(sql ? (sql.execute || '') : '') + '</textarea></div>'
+    + '<div class="form-group"><label>——回退 SQL脚本</label><textarea class="sql-code-textarea" id="sqlRollback' + index + '" placeholder="回退SQL ..." spellcheck="false" wrap="soft">' + escHtml(sql ? (sql.rollback || '') : '') + '</textarea></div></div>';
 }
 
 function addModuleRow() {
@@ -991,28 +1480,43 @@ function renderApiSection(req) {
 
 function buildApiEditor(index, api) {
   var a = api || {};
-  return '<div class="api-editor-block" id="apiBlock' + index + '">'
-    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
-    + '<strong style="font-size:13px;color:var(--primary)">API #' + (index+1) + '</strong>'
-    + '<button class="btn btn-xs btn-danger" onclick="document.getElementById(\'apiBlock' + index + '\').remove()">&#10005; 删除</button></div>'
-    + '<div class="api-field-row"><div class="form-group short"><label>API</label><input type="text" id="apiName' + index + '" value="' + escHtml(a.apiName || '') + '"></div>'
-    + '<div class="form-group short"><label>API分组</label><input type="text" id="apiGroup' + index + '" value="' + escHtml(a.apiGroup || '') + '"></div>'
-    + '<div class="form-group short"><label>API版本</label><input type="text" id="apiVersion' + index + '" value="' + escHtml(a.apiVersion || '') + '"></div>'
-    + '<div class="form-group"><label>简介</label><input type="text" id="apiDesc' + index + '" value="' + escHtml(a.description || '') + '"></div></div>'
-    + '<div class="api-field-row"><div class="form-group"><label>接入方式</label><input type="text" id="apiAccessMethod' + index + '" value="' + escHtml(a.accessMethod || 'REST接入') + '"></div></div>'
-    + '<div class="api-field-row"><div class="form-group short"><label>接出模板</label><input type="text" id="apiOutTemplate' + index + '" value="' + escHtml(a.outTemplate || '') + '"></div>'
-    + '<div class="form-group short"><label>接出实例</label><input type="text" id="apiOutInstance' + index + '" value="' + escHtml(a.outInstance || '') + '"></div>'
-    + '<div class="form-group short"><label>应用名</label><input type="text" id="apiAppName' + index + '" value="' + escHtml(a.appName || '') + '"></div>'
-    + '<div class="form-group"><label>资源路径</label><input type="text" id="apiResourcePath' + index + '" value="' + escHtml(a.resourcePath || '') + '"></div>'
-    + '<div class="form-group short"><label>drs服务类型</label><input type="text" id="apiDrsType' + index + '" value="' + escHtml(a.drsServiceType || 'concentrated') + '"></div></div>'
-    + '<div class="form-group" style="max-width:200px"><label>报文转换</label><input type="text" id="apiMsgTransform' + index + '" value="' + escHtml(a.messageTransform || '禁用') + '"></div>'
+  var outTemplate = a.outTemplate || 'REST负载';
+  var resourcePath = a.resourcePath || buildApiResourcePath(a.apiName || '');
+  return '<div class="api-editor-block" id="apiBlock' + index + '" data-index="' + index + '">'
+    + '<div class="api-editor-header">'
+    + '<div class="api-editor-title"><span>&#128268; 编辑API</span><span class="api-index">' + (index + 1) + '</span></div>'
+    + '<button class="btn btn-xs btn-danger" onclick="this.closest(\'.api-editor-block\').remove()">&#10005; 删除</button></div>'
+    + '<div class="api-editor-body">'
+    + '<div class="api-editor-section"><div class="api-editor-section-title">API</div>'
+    + '<div class="api-grid">'
+    + '<div class="form-group api-field required"><label>API</label><input type="text" id="apiName' + index + '" value="' + escHtml(a.apiName || '') + '" placeholder="dp2001" oninput="syncApiResourcePath(' + index + ')" autocomplete="off"></div>'
+    + '<div class="form-group api-field"><label>API服务名</label><input type="text" id="apiGroup' + index + '" value="' + escHtml(a.apiGroup || '') + '" placeholder="JTS"></div>'
+    + '<div class="form-group api-field"><label>API版本</label><input type="text" id="apiVersion' + index + '" value="' + escHtml(a.apiVersion || '') + '" placeholder="1.0"></div>'
+    + '<div class="form-group api-field span-12"><label>简介</label><textarea id="apiDesc' + index + '" placeholder="请输入接口简介">' + escHtml(a.description || '') + '</textarea></div>'
+    + '</div></div>'
+    + '<div class="api-editor-section"><div class="api-editor-section-title">接入</div>'
+    + '<div class="api-grid">'
+    + '<div class="form-group api-field span-6"><label>接入方式</label><input type="text" id="apiAccessMethod' + index + '" value="' + escHtml(a.accessMethod || 'REST接入') + '"></div>'
+    + '</div></div>'
+    + '<div class="api-editor-section"><div class="api-editor-section-title">接出</div>'
+    + '<div class="api-grid">'
+    + '<div class="form-group api-field required"><label>接出模板</label><input type="text" id="apiOutTemplate' + index + '" value="' + escHtml(outTemplate) + '"></div>'
+    + '<div class="form-group api-field"><label>接出实例</label><input type="text" id="apiOutInstance' + index + '" value="' + escHtml(a.outInstance || '') + '" placeholder="app-common"></div>'
+    + '<div class="form-group api-field"><label>应用名</label><input type="text" id="apiAppName' + index + '" value="' + escHtml(a.appName || '') + '"></div>'
+    + '<div class="form-group api-field span-6 required"><label>资源路径</label><input type="text" id="apiResourcePath' + index + '" value="' + escHtml(resourcePath) + '" placeholder="/dp2001"></div>'
+    + '<div class="form-group api-field span-6"><label>drs服务类型</label><input type="text" id="apiDrsType' + index + '" value="' + escHtml(a.drsServiceType || 'concentrated') + '"></div>'
+    + '</div></div>'
+    + '<div class="api-editor-section"><div class="api-editor-section-title">报文转换</div>'
+    + '<div class="api-grid">'
+    + '<div class="form-group api-field span-6"><label>报文转换</label><input type="text" id="apiMsgTransform' + index + '" value="' + escHtml(a.messageTransform || '禁用') + '"></div>'
+    + '</div></div></div>'
     + '</div>';
 }
 
 function addApiItem() {
   var c = document.getElementById('apiContainer'), p = c.querySelector('p'); if (p) p.remove();
   var i = apiCounter++;
-  var b = document.createElement('div'); b.id = 'apiBlock' + i; b.innerHTML = buildApiEditor(i, null); c.appendChild(b);
+  c.insertAdjacentHTML('beforeend', buildApiEditor(i, null));
 }
 
 function addSqlFile() {
@@ -1032,69 +1536,96 @@ function collectReqForm() {
   var name = document.getElementById('reqName').value.trim();
   var number = document.getElementById('reqNumber').value.trim();
   if (!name || !number) { showToast('请填写需求名称和需求编号', 'error'); return null; }
+  var existingReq = null;
+  if (editingReqWindowId && editingReqId) {
+    var editingWindow = data.windows.find(function(w) { return w.id === editingReqWindowId; });
+    if (editingWindow) existingReq = (editingWindow.requirements || []).find(function(r) { return r.id === editingReqId; }) || null;
+  }
+  function formValue(id, fallback) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : fallback;
+  }
+  function formBool(id, fallback) {
+    var el = document.getElementById(id);
+    return el ? el.value === '1' : !!fallback;
+  }
 
-  var modules = [];
-  document.querySelectorAll('#modulesContainer .form-row').forEach(function(row) {
-    var selects = row.querySelectorAll('select');
-    var selVal = selects.length >= 1 ? selects[0].value.trim() : '';
-    var mb = selects.length >= 2 ? selects[1].value.trim() : '';
-    if (!selVal) return;
-    // resolve display name from githubRepos (GitLab stores project ID as value)
-    var displayName = selVal;
-    var apiId = selVal;
-    for (var j = 0; j < githubRepos.length; j++) {
-      if (githubRepos[j].full_name === selVal) {
-        displayName = githubRepos[j].name;
-        apiId = githubRepos[j].full_name;
-        break;
+  var modules = existingReq ? (existingReq.modules || []).slice() : [];
+  var modulesContainer = document.getElementById('modulesContainer');
+  if (modulesContainer) {
+    modules = [];
+    document.querySelectorAll('#modulesContainer .form-row').forEach(function(row) {
+      var selects = row.querySelectorAll('select');
+      var selVal = selects.length >= 1 ? selects[0].value.trim() : '';
+      var mb = selects.length >= 2 ? selects[1].value.trim() : '';
+      if (!selVal) return;
+      // resolve display name from githubRepos (GitLab stores project ID as value)
+      var displayName = selVal;
+      var apiId = selVal;
+      for (var j = 0; j < githubRepos.length; j++) {
+        if (githubRepos[j].full_name === selVal) {
+          displayName = githubRepos[j].name;
+          apiId = githubRepos[j].full_name;
+          break;
+        }
       }
-    }
-    modules.push({ name: displayName, branch: mb, full_name: apiId });
-  });
+      modules.push({ name: displayName, branch: mb, full_name: apiId });
+    });
+  }
 
-  var sqlFiles = [];
-  document.querySelectorAll('#sqlContainer .sql-editor-block').forEach(function(block) {
-    var dbSel = block.querySelector('select');
-    var textareas = block.querySelectorAll('textarea');
-    if (dbSel && textareas.length >= 3 && dbSel.value) {
-      sqlFiles.push({ dbName: dbSel.value, query: textareas[0].value, execute: textareas[1].value, rollback: textareas[2].value });
-    }
-  });
+  var sqlFiles = existingReq ? (existingReq.sqlFiles || []).slice() : [];
+  var sqlContainer = document.getElementById('sqlContainer');
+  if (sqlContainer) {
+    sqlFiles = [];
+    document.querySelectorAll('#sqlContainer .sql-editor-block').forEach(function(block) {
+      var dbSel = block.querySelector('select');
+      var textareas = block.querySelectorAll('textarea');
+      if (dbSel && textareas.length >= 3 && dbSel.value) {
+        sqlFiles.push({ dbName: dbSel.value, query: textareas[0].value, execute: textareas[1].value, rollback: textareas[2].value });
+      }
+    });
+  }
 
   // collect APIs
-  var apis = [];
-  document.querySelectorAll('#apiContainer .api-editor-block').forEach(function(block) {
-    var inputs = block.querySelectorAll('input');
-    if (inputs.length >= 9) {
+  var apis = existingReq ? (existingReq.apis || []).slice() : [];
+  var apiContainer = document.getElementById('apiContainer');
+  if (apiContainer) {
+    apis = [];
+    document.querySelectorAll('#apiContainer .api-editor-block').forEach(function(block) {
+      var idx = block.getAttribute('data-index') || (block.id || '').replace('apiBlock', '');
+      function apiVal(prefix) {
+        var el = document.getElementById(prefix + idx);
+        return el ? el.value.trim() : '';
+      }
+      var apiName = apiVal('apiName');
       apis.push({
-        apiName: inputs[0].value.trim(),
-        apiGroup: inputs[1].value.trim(),
-        apiVersion: inputs[2].value.trim(),
-        description: inputs[3].value.trim(),
-        accessMethod: inputs[4].value.trim(),
-        outTemplate: inputs[5].value.trim(),
-        outInstance: inputs[6].value.trim(),
-        appName: inputs[7].value.trim(),
-        resourcePath: inputs[8].value.trim(),
-        drsServiceType: inputs[9] ? inputs[9].value.trim() : '',
-        messageTransform: inputs[10] ? inputs[10].value.trim() : ''
+        apiName: apiName,
+        apiGroup: apiVal('apiGroup'),
+        apiVersion: apiVal('apiVersion'),
+        description: apiVal('apiDesc'),
+        accessMethod: apiVal('apiAccessMethod'),
+        outTemplate: apiVal('apiOutTemplate') || 'REST负载',
+        outInstance: apiVal('apiOutInstance'),
+        appName: apiVal('apiAppName'),
+        resourcePath: apiVal('apiResourcePath') || buildApiResourcePath(apiName),
+        drsServiceType: apiVal('apiDrsType'),
+        messageTransform: apiVal('apiMsgTransform')
       });
-    }
-  });
+    });
+  }
 
-  var statusEl = document.getElementById('reqStatus');
   return {
     id: editingReqId || genId(),
     name: name, number: number,
     resolver: document.getElementById('reqResolver').value.trim(),
     businessPerson: document.getElementById('reqBizPerson').value.trim(),
     modules: modules, sqlFiles: sqlFiles, apis: apis,
-    sitReport: document.getElementById('reqSitReport').value === '1',
-    uatReport: document.getElementById('reqUatReport').value === '1',
-    reviewStatus: document.getElementById('reqReviewStatus').value,
-    reviewStatusNote: document.getElementById('reqReviewNote').value.trim(),
-    codeMerged: document.getElementById('reqCodeMerged').value === '1',
-    status: statusEl ? statusEl.value : 'normal'
+    sitReport: formBool('reqSitReport', existingReq && existingReq.sitReport),
+    uatReport: formBool('reqUatReport', existingReq && existingReq.uatReport),
+    reviewStatus: formValue('reqReviewStatus', existingReq ? (existingReq.reviewStatus || '未评审') : '未评审'),
+    reviewStatusNote: formValue('reqReviewNote', existingReq ? (existingReq.reviewStatusNote || '') : ''),
+    codeMerged: formBool('reqCodeMerged', existingReq && existingReq.codeMerged),
+    status: formValue('reqStatus', existingReq ? (existingReq.status || 'normal') : 'normal')
   };
 }
 
@@ -1153,9 +1684,9 @@ function viewSqlOnly(windowId, reqId, sqlIdx) {
   document.getElementById('viewReqTitle').textContent = 'SQL — ' + sql.dbName + ' — ' + r.name;
   var body = document.getElementById('viewReqBody');
   body.innerHTML = '<div class="form-group"><label>数据库</label><input type="text" value="' + escHtml(sql.dbName) + '" readonly></div>'
-    + '<div class="form-group"><label>——查询 SQL脚本</label><textarea readonly rows="6" style="background:#1e1e1e;color:#d4d4d4">' + escHtml(sql.query || '(空)') + '</textarea></div>'
-    + '<div class="form-group"><label>——执行 SQL脚本</label><textarea readonly rows="6" style="background:#1e1e1e;color:#d4d4d4">' + escHtml(sql.execute || '(空)') + '</textarea></div>'
-    + '<div class="form-group"><label>——回退 SQL脚本</label><textarea readonly rows="6" style="background:#1e1e1e;color:#d4d4d4">' + escHtml(sql.rollback || '(空)') + '</textarea></div>'
+    + renderSqlViewer('——查询 SQL脚本', sql.query)
+    + renderSqlViewer('——执行 SQL脚本', sql.execute)
+    + renderSqlViewer('——回退 SQL脚本', sql.rollback)
     + '<button class="btn btn-sm btn-primary" onclick="downloadSqlById(\'' + windowId + '\',\'' + reqId + '\',' + sqlIdx + ')">下载SQL文件</button>';
   document.getElementById('viewReqModal').classList.add('show');
 }
@@ -1462,7 +1993,8 @@ async function fetchRepos() {
   if (!isGithub && (!gitConfig.gitlab || !gitConfig.gitlab.host)) { showToast('请先在设置中配置GitLab地址', 'error'); return; }
 
   var statusEl = document.getElementById('repoFetchStatus');
-  statusEl.textContent = '正在获取项目列表...';
+  function setRepoFetchStatus(text) { if (statusEl) statusEl.textContent = text; }
+  setRepoFetchStatus('正在获取项目列表...');
   try {
     var allRepos = [], page = 1;
     while (page <= 10) {
@@ -1493,11 +2025,11 @@ async function fetchRepos() {
     } else {
       githubRepos = allRepos.map(function(r) { return { full_name: String(r.id), name: r.path_with_namespace || r.name }; }).sort(function(a, b) { return a.name.localeCompare(b.name); });
     }
-    statusEl.textContent = '已加载 ' + githubRepos.length + ' 个项目';
+    setRepoFetchStatus('已加载 ' + githubRepos.length + ' 个项目');
     showToast('已获取 ' + githubRepos.length + ' 个项目', 'success');
     refreshAllModuleRepoSelects();
   } catch (err) {
-    statusEl.textContent = '获取失败';
+    setRepoFetchStatus('获取失败');
     showToast('获取项目列表失败：' + err.message, 'error');
   }
 }
@@ -1522,6 +2054,19 @@ function refreshAllModuleRepoSelects() {
         selects[1].innerHTML = '<option value="' + escHtml(curBranch) + '" selected>' + escHtml(curBranch) + '</option>';
       }
     }
+  });
+  document.querySelectorAll('.inline-module-row').forEach(function(row) {
+    var repoSelect = row.querySelector('[data-field="repo"]');
+    var branchSelect = row.querySelector('[data-field="branch"]');
+    if (!repoSelect || !branchSelect) return;
+    var curRepo = repoSelect.value;
+    var curBranch = branchSelect.value;
+    var repoHtml = '<option value="">-- 选择项目 --</option>';
+    githubRepos.forEach(function(r) {
+      repoHtml += '<option value="' + escHtml(r.full_name) + '"' + (r.full_name === curRepo ? ' selected' : '') + '>' + escHtml(r.name) + '</option>';
+    });
+    repoSelect.innerHTML = repoHtml;
+    branchSelect.innerHTML = buildBranchOptionsForForm(curRepo, curBranch);
   });
   suppressRepoChange = false;
 }
