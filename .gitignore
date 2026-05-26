@@ -2,6 +2,8 @@ data.json
 data.json.tmp
 git-config.json
 git-config.json.tmp
+users.json
+users.json.tmp
 *.log
 node_modules
 .DS_Store

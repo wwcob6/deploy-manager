@@ -52,6 +52,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .main-header h1 { font-size: 18px; font-weight: 700; }
 .main-header .header-actions { display: flex; gap: 8px; align-items: center; }
 .main-content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.user-chip { display:inline-flex; align-items:center; gap:6px; border:1px solid #dbe4ef; background:#f8fbff; border-radius:999px; padding:5px 10px; font-size:12px; color:#334155; white-space:nowrap; }
+.user-chip strong { font-size:12px; color:var(--text); }
+.role-badge { display:inline-flex; align-items:center; justify-content:center; border-radius:999px; padding:2px 8px; font-size:11px; font-weight:800; background:#e0f2fe; color:#0369a1; }
+.role-badge.admin { background:#fef3c7; color:#b45309; }
+.role-badge.config { background:#dcfce7; color:#15803d; }
+.role-badge.developer { background:#e0f2fe; color:#0369a1; }
+.permission-muted { color:#94a3b8; font-size:12px; white-space:nowrap; }
 
 /* Buttons */
 .btn { padding: 8px 14px; border-radius: 7px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-size: 14px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; box-shadow: var(--shadow-sm); }
@@ -291,6 +298,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .modal-header h2 { font-size: 18px; }
 .modal-body { padding: 24px; }
 .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; position: sticky; bottom: 0; background: #fff; }
+.login-modal { max-width:420px; }
+.login-subtitle { color:#64748b; font-size:13px; line-height:1.6; margin-bottom:16px; }
+.user-manager-layout { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,0.8fr); gap:16px; align-items:start; }
+.user-table { width:100%; border-collapse:separate; border-spacing:0; border:1px solid var(--border); border-radius:8px; overflow:hidden; font-size:13px; }
+.user-table th, .user-table td { padding:10px 12px; border-bottom:1px solid #edf1f6; text-align:left; }
+.user-table th { background:#f8fbff; color:#64748b; font-size:12px; font-weight:800; }
+.user-table tr:last-child td { border-bottom:0; }
+.user-table .actions { text-align:right; white-space:nowrap; }
+.user-edit-panel { border:1px solid var(--border); border-radius:8px; background:#fbfdff; padding:14px; }
+.user-edit-panel h3 { font-size:14px; margin-bottom:12px; }
+.password-view { display:inline-flex; align-items:center; max-width:180px; padding:3px 7px; border-radius:6px; background:#f1f5f9; color:#334155; font-family:"SF Mono","Menlo","Consolas",monospace; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; }
+.password-view.missing { font-family:inherit; color:#b45309; background:#fef3c7; }
 
 /* Form */
 .form-group { margin-bottom: 14px; }
@@ -365,7 +384,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
   .main-content { padding: 18px; }
   .card-header, .list-toolbar { align-items:flex-start; flex-direction:column; }
   .toolbar-actions { justify-content:flex-start; }
-  .form-row, .api-editor-block .api-field-row, .detail-expanded { flex-direction:column; }
+  .form-row, .api-editor-block .api-field-row, .detail-expanded, .user-manager-layout { flex-direction:column; grid-template-columns:1fr; }
   .search-input { width: 100%; }
 }
 </style>
@@ -375,18 +394,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 <aside class="sidebar">
   <div class="sidebar-header">
     <h2>投产清单<span class="mode-badge" id="modeBadge">本地</span></h2>
-    <button class="btn-icon" onclick="addYear()" title="新建年份">+</button>
+    <button class="btn-icon" id="btnAddYear" onclick="addYear()" title="新建年份">+</button>
   </div>
   <div class="sidebar-body" id="sidebarBody"></div>
   <div style="padding:10px 16px;border-top:1px solid rgba(255,255,255,0.1)">
-    <button class="settings-toggle" onclick="toggleSettings()" title="Git仓库设置" style="color:#95a5a6;background:none;border:none;font-size:13px;cursor:pointer;width:100%;text-align:left;padding:6px 0">&#9881; 仓库设置</button>
+    <button class="settings-toggle" id="btnSettings" onclick="toggleSettings()" title="Git仓库设置" style="color:#95a5a6;background:none;border:none;font-size:13px;cursor:pointer;width:100%;text-align:left;padding:6px 0">&#9881; 仓库设置</button>
   </div>
 </aside>
 
 <main class="main">
   <div class="main-header">
     <h1 id="mainTitle">请选择投产窗口</h1>
-    <div class="header-actions"></div>
+    <div class="header-actions" id="headerActions"></div>
   </div>
   <div class="main-content" id="mainContent">
     <div class="empty-state"><div class="empty-icon">&#128203;</div><p>请从左侧选择一个投产窗口查看需求</p></div>
@@ -417,6 +436,54 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
     <div class="modal-footer">
       <button class="btn" onclick="closeSettings()">取消</button>
       <button class="btn btn-primary" onclick="saveSettings()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal login-modal">
+    <div class="modal-header"><h2>用户登录</h2></div>
+    <div class="modal-body">
+      <p class="login-subtitle">请选择对应账号登录后继续使用投产需求清单。</p>
+      <div class="form-group"><label>用户名</label><input type="text" id="loginUsername" value="admin" autocomplete="username"></div>
+      <div class="form-group"><label>密码</label><input type="password" id="loginPassword" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginUser()"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="loginUser()">登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Management Modal -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2>用户管理</h2>
+      <button class="btn btn-sm" onclick="closeUserModal()">&#10005;</button>
+    </div>
+    <div class="modal-body" id="userModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeUserModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal login-modal">
+    <div class="modal-header">
+      <h2>修改密码</h2>
+      <button class="btn btn-sm" onclick="closePasswordModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>原密码 *</label><input type="password" id="oldPassword" autocomplete="current-password"></div>
+      <div class="form-group"><label>新密码 *</label><input type="password" id="newPassword" autocomplete="new-password"></div>
+      <div class="form-group"><label>确认新密码 *</label><input type="password" id="confirmPassword" autocomplete="new-password" onkeydown="if(event.key==='Enter') changeMyPassword()"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closePasswordModal()">取消</button>
+      <button class="btn btn-primary" onclick="changeMyPassword()">保存</button>
     </div>
   </div>
 </div>
@@ -490,6 +557,38 @@ var isServerMode = window.location.protocol !== 'file:';
 var data = { years: [], windows: [] };
 var dataVersion = 0;
 var gitConfig = { provider: 'github', gitlab: { host: '', token: '' }, github: { owner: '', repo: '', token: '' } };
+var authToken = sessionStorage.getItem('auth_token') || sessionStorage.getItem('admin_token') || '';
+var adminToken = authToken;
+var currentUser = null;
+var roleLabels = { admin: '管理员', config: '配置人员', developer: '普通开发人员' };
+
+function authHeaders(base) {
+  var headers = base || {};
+  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  return headers;
+}
+function getCurrentRole() {
+  if (!isServerMode) return 'admin';
+  return currentUser ? currentUser.role : '';
+}
+function roleLabel(role) {
+  return roleLabels[role] || '未登录';
+}
+function canManageUsers() { return getCurrentRole() === 'admin'; }
+function canManageGitSettings() { return getCurrentRole() === 'admin'; }
+function canManageDemand() {
+  var role = getCurrentRole();
+  return role === 'admin' || role === 'config';
+}
+function canEditCollections() {
+  var role = getCurrentRole();
+  return role === 'admin' || role === 'config' || role === 'developer';
+}
+function ensurePermission(ok, msg) {
+  if (ok) return true;
+  showToast(msg || '当前用户没有权限执行此操作', 'error');
+  return false;
+}
 
 function loadData(callback) {
   if (isServerMode) {
@@ -516,10 +615,11 @@ function saveData() {
   if (isServerMode) {
     var payload = JSON.parse(JSON.stringify(data));
     payload._version = dataVersion;
-    return fetch(API_BASE + '/api/data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    return fetch(API_BASE + '/api/data', { method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(payload) })
       .then(function(r) { return r.json().then(function(body) { body.httpOk = r.ok; return body; }); })
       .then(function(resp) {
         if (resp.ok) { dataVersion = resp._version; return true; }
+        if (resp.httpOk === false && (resp.message || '').indexOf('登录') > -1) showLoginModal();
         if (resp.conflict) { showToast(resp.message, 'error'); loadData(); }
         else showToast(resp.message || '保存失败', 'error');
         return false;
@@ -547,8 +647,7 @@ function loadGitConfig(cb) {
 function saveGitConfig(cfg) {
   gitConfig = cfg;
   if (isServerMode) {
-    var headers = { 'Content-Type': 'application/json' };
-    if (adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
+    var headers = authHeaders({ 'Content-Type': 'application/json' });
     return fetch(API_BASE + '/api/git', { method: 'POST', headers: headers, body: JSON.stringify(cfg) })
       .then(function(r) { return r.json().then(function(body) { if (!r.ok || !body.ok) throw new Error(body.message || ('HTTP ' + r.status)); return body; }); })
       .then(function() { return loadGitConfig(); })
@@ -578,6 +677,8 @@ var detailEditModes = {};
 var editingCollectionWindowId = null;
 var editingCollectionReqId = null;
 var editingCollectionKind = null;
+var usersCache = [];
+var editingUserId = null;
 
 // ========== Helpers ==========
 function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); }
@@ -594,6 +695,256 @@ function escHtml(s) {
   var d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
+}
+function showLoginModal() {
+  var modal = document.getElementById('loginModal');
+  if (modal) modal.classList.add('show');
+  var title = document.getElementById('mainTitle');
+  var content = document.getElementById('mainContent');
+  var sidebar = document.getElementById('sidebarBody');
+  if (title) title.textContent = '请登录';
+  if (content) content.innerHTML = '<div class="empty-state"><p>登录后查看投产需求清单</p></div>';
+  if (sidebar && isServerMode) sidebar.innerHTML = '<div style="padding:20px;text-align:center;color:#7f8c8d;">请先登录</div>';
+}
+function hideLoginModal() {
+  var modal = document.getElementById('loginModal');
+  if (modal) modal.classList.remove('show');
+}
+function renderHeaderActions() {
+  var el = document.getElementById('headerActions');
+  if (!el) return;
+  if (!isServerMode) {
+    el.innerHTML = '<span class="user-chip"><strong>本地模式</strong><span class="role-badge admin">管理员</span></span>';
+    return;
+  }
+  if (!currentUser) {
+    el.innerHTML = '<button class="btn btn-sm btn-primary" onclick="showLoginModal()">登录</button>';
+    return;
+  }
+  el.innerHTML = '<span class="user-chip"><strong>' + escHtml(currentUser.name || currentUser.username) + '</strong><span class="role-badge ' + escHtml(currentUser.role) + '">' + escHtml(roleLabel(currentUser.role)) + '</span></span>'
+    + (canManageUsers() ? '<button class="btn btn-sm" onclick="openUserModal()">用户管理</button>' : '')
+    + '<button class="btn btn-sm" onclick="openPasswordModal()">修改密码</button>'
+    + '<button class="btn btn-sm" onclick="logoutUser()">退出</button>';
+}
+function applyPermissionChrome() {
+  var addYearBtn = document.getElementById('btnAddYear');
+  if (addYearBtn) addYearBtn.style.display = canManageDemand() ? '' : 'none';
+  var settingsBtn = document.getElementById('btnSettings');
+  if (settingsBtn) settingsBtn.style.display = canManageGitSettings() ? '' : 'none';
+  renderHeaderActions();
+}
+function refreshPermissionViews() {
+  applyPermissionChrome();
+  if (data && data.years) {
+    renderSidebar();
+    renderMain();
+  }
+}
+async function loadSession(callback) {
+  if (!isServerMode) {
+    currentUser = { id: 'local', username: 'local', name: '本地管理员', role: 'admin' };
+    if (callback) callback(true);
+    return true;
+  }
+  if (!authToken) {
+    currentUser = null;
+    refreshPermissionViews();
+    showLoginModal();
+    if (callback) callback(false);
+    return false;
+  }
+  try {
+    var resp = await fetch(API_BASE + '/api/me', { headers: authHeaders({}) });
+    var body = await resp.json();
+    if (!resp.ok || !body.ok) throw new Error(body.message || '登录已失效');
+    currentUser = body.user;
+    applyPermissionChrome();
+    if (callback) callback(true);
+    return true;
+  } catch (e) {
+    authToken = '';
+    adminToken = '';
+    sessionStorage.removeItem('auth_token');
+    sessionStorage.removeItem('admin_token');
+    currentUser = null;
+    refreshPermissionViews();
+    showLoginModal();
+    if (callback) callback(false);
+    return false;
+  }
+}
+async function loginUser() {
+  var username = document.getElementById('loginUsername').value.trim();
+  var password = document.getElementById('loginPassword').value;
+  if (!username || !password) { showToast('请输入用户名和密码', 'error'); return; }
+  try {
+    var resp = await fetch(API_BASE + '/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, password: password })
+    });
+    var body = await resp.json();
+    if (!resp.ok || !body.ok) throw new Error(body.message || '登录失败');
+    authToken = body.token;
+    adminToken = body.token;
+    currentUser = body.user;
+    sessionStorage.setItem('auth_token', authToken);
+    sessionStorage.setItem('admin_token', authToken);
+    document.getElementById('loginPassword').value = '';
+    hideLoginModal();
+    applyPermissionChrome();
+    loadGitConfig(function() { loadData(); });
+    showToast('登录成功', 'success');
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+function logoutUser() {
+  authToken = '';
+  adminToken = '';
+  currentUser = null;
+  sessionStorage.removeItem('auth_token');
+  sessionStorage.removeItem('admin_token');
+  refreshPermissionViews();
+  showLoginModal();
+}
+function openPasswordModal() {
+  if (!ensurePermission(!!currentUser, '请先登录')) return;
+  document.getElementById('oldPassword').value = '';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('confirmPassword').value = '';
+  document.getElementById('passwordModal').classList.add('show');
+}
+function closePasswordModal() {
+  document.getElementById('passwordModal').classList.remove('show');
+}
+async function changeMyPassword() {
+  var oldPassword = document.getElementById('oldPassword').value;
+  var newPassword = document.getElementById('newPassword').value;
+  var confirmPassword = document.getElementById('confirmPassword').value;
+  if (!oldPassword || !newPassword) { showToast('请填写原密码和新密码', 'error'); return; }
+  if (newPassword !== confirmPassword) { showToast('两次输入的新密码不一致', 'error'); return; }
+  try {
+    var resp = await fetch(API_BASE + '/api/me/password', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ oldPassword: oldPassword, newPassword: newPassword })
+    });
+    var body = await resp.json();
+    if (!resp.ok || !body.ok) throw new Error(body.message || '密码修改失败');
+    closePasswordModal();
+    showToast('密码已修改', 'success');
+    if (canManageUsers() && document.getElementById('userModal').classList.contains('show')) loadUsers();
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+async function openUserModal() {
+  if (!ensurePermission(canManageUsers(), '只有管理员可以管理用户')) return;
+  document.getElementById('userModal').classList.add('show');
+  document.getElementById('userModalBody').innerHTML = '<p style="color:#999;font-size:13px;">正在加载用户...</p>';
+  await loadUsers();
+}
+function closeUserModal() {
+  document.getElementById('userModal').classList.remove('show');
+  editingUserId = null;
+}
+async function loadUsers() {
+  try {
+    var resp = await fetch(API_BASE + '/api/users', { headers: authHeaders({}) });
+    var body = await resp.json();
+    if (!resp.ok || !body.ok) throw new Error(body.message || '用户加载失败');
+    usersCache = body.users || [];
+    roleLabels = body.roles || roleLabels;
+    renderUserManager();
+  } catch (e) {
+    document.getElementById('userModalBody').innerHTML = '<p style="color:#dc2626;font-size:13px;">' + escHtml(e.message) + '</p>';
+  }
+}
+function renderUserManager() {
+  var editingUser = usersCache.find(function(u) { return u.id === editingUserId; }) || null;
+  var rows = usersCache.map(function(u) {
+    var passwordHtml = u.passwordReadable
+      ? '<span class="password-view" title="' + escHtml(u.passwordText || '') + '">' + escHtml(u.passwordText || '') + '</span>'
+      : '<span class="password-view missing" title="旧密码已加密保存，无法反向查看；重置后可显示">已加密</span>';
+    return '<tr><td><strong>' + escHtml(u.name || u.username) + '</strong><div style="color:#64748b;font-size:12px">' + escHtml(u.username) + '</div></td>'
+      + '<td><span class="role-badge ' + escHtml(u.role) + '">' + escHtml(roleLabel(u.role)) + '</span></td>'
+      + '<td>' + passwordHtml + '</td>'
+      + '<td>' + (u.disabled ? '<span class="status-tag no">已停用</span>' : '<span class="status-tag yes">启用</span>') + '</td>'
+      + '<td class="actions"><button class="btn btn-xs" onclick="editUser(\'' + u.id + '\')">编辑</button> '
+      + '<button class="btn btn-xs btn-danger" onclick="deleteUser(\'' + u.id + '\')">删除</button></td></tr>';
+  }).join('');
+  document.getElementById('userModalBody').innerHTML = '<div class="user-manager-layout">'
+    + '<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="font-size:15px">用户列表</h3><button class="btn btn-sm btn-primary" onclick="newUser()">+ 新建用户</button></div>'
+    + '<table class="user-table"><thead><tr><th>用户</th><th>角色</th><th>密码</th><th>状态</th><th class="actions">操作</th></tr></thead><tbody>' + (rows || '<tr><td colspan="5" style="color:#999;text-align:center">暂无用户</td></tr>') + '</tbody></table></div>'
+    + buildUserEditor(editingUser) + '</div>';
+}
+function buildUserEditor(user) {
+  var isEdit = !!user;
+  var role = user ? user.role : 'developer';
+  return '<div class="user-edit-panel"><h3>' + (isEdit ? '编辑用户' : '新建用户') + '</h3>'
+    + '<div class="form-group"><label>用户名 *</label><input type="text" id="userUsername" value="' + escHtml(user ? user.username : '') + '"' + (isEdit ? ' readonly' : '') + '></div>'
+    + '<div class="form-group"><label>姓名</label><input type="text" id="userName" value="' + escHtml(user ? user.name : '') + '"></div>'
+    + '<div class="form-group"><label>角色 *</label><select id="userRole">'
+    + '<option value="admin"' + selectedAttr(role, 'admin') + '>管理员</option>'
+    + '<option value="config"' + selectedAttr(role, 'config') + '>配置人员</option>'
+    + '<option value="developer"' + selectedAttr(role, 'developer') + '>普通开发人员</option>'
+    + '</select></div>'
+    + '<div class="form-group"><label>' + (isEdit ? '新密码（留空不修改）' : '密码 *') + '</label><input type="password" id="userPassword" autocomplete="new-password"></div>'
+    + '<div class="form-group"><label><input type="checkbox" id="userDisabled" ' + (user && user.disabled ? 'checked' : '') + '> 停用此用户</label></div>'
+    + '<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn btn-sm" onclick="newUser()">清空</button><button class="btn btn-sm btn-primary" onclick="saveUser()">保存用户</button></div>'
+    + '</div>';
+}
+function newUser() {
+  editingUserId = null;
+  renderUserManager();
+}
+function editUser(id) {
+  editingUserId = id;
+  renderUserManager();
+}
+async function saveUser() {
+  var username = document.getElementById('userUsername').value.trim();
+  var name = document.getElementById('userName').value.trim();
+  var role = document.getElementById('userRole').value;
+  var password = document.getElementById('userPassword').value;
+  var disabled = document.getElementById('userDisabled').checked;
+  if (!username) { showToast('请填写用户名', 'error'); return; }
+  if (!editingUserId && !password) { showToast('新用户必须设置密码', 'error'); return; }
+  try {
+    var resp = await fetch(API_BASE + '/api/users', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ action: 'save', user: { id: editingUserId, username: username, name: name, role: role, password: password, disabled: disabled } })
+    });
+    var body = await resp.json();
+    if (!resp.ok || !body.ok) throw new Error(body.message || '保存失败');
+    usersCache = body.users || [];
+    editingUserId = null;
+    renderUserManager();
+    showToast('用户已保存', 'success');
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+async function deleteUser(id) {
+  var user = usersCache.find(function(u) { return u.id === id; });
+  if (!user || !confirm('确定删除用户 ' + (user.name || user.username) + ' 吗？')) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/users', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ action: 'delete', id: id })
+    });
+    var body = await resp.json();
+    if (!resp.ok || !body.ok) throw new Error(body.message || '删除失败');
+    usersCache = body.users || [];
+    if (editingUserId === id) editingUserId = null;
+    renderUserManager();
+    showToast('用户已删除', 'success');
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
 }
 function buildApiResourcePath(apiName) {
   var name = (apiName || '').trim().replace(/^\/+/, '');
@@ -614,12 +965,15 @@ function renderSqlViewer(label, sqlText) {
 function selectedAttr(actual, expected) {
   return actual === expected ? ' selected' : '';
 }
+function disabledAttr(allowed, title) {
+  return allowed ? '' : ' disabled title="' + escHtml(title || '当前用户无权限编辑') + '"';
+}
 function statusControlAttrs(windowId, reqId, field) {
   return ' data-window-id="' + escHtml(windowId) + '" data-req-id="' + escHtml(reqId) + '" data-field="' + field + '" onclick="event.stopPropagation()"';
 }
 function renderBooleanStatusSelect(windowId, req, field, value, trueLabel, falseLabel) {
   var cls = value ? 'ok' : 'bad';
-  return '<select class="row-status-select ' + cls + '"' + statusControlAttrs(windowId, req.id, field) + ' onchange="saveInlineStatusFromControl(this)">'
+  return '<select class="row-status-select ' + cls + '"' + statusControlAttrs(windowId, req.id, field) + disabledAttr(canManageDemand(), '只有管理员和配置人员可以编辑需求状态') + ' onchange="saveInlineStatusFromControl(this)">'
     + '<option value="0"' + (!value ? ' selected' : '') + '>' + falseLabel + '</option>'
     + '<option value="1"' + (value ? ' selected' : '') + '>' + trueLabel + '</option>'
     + '</select>';
@@ -628,18 +982,18 @@ function renderReviewStatusCell(windowId, req) {
   var reviewStatus = req.reviewStatus || '未评审';
   var cls = reviewStatus === '已评审' ? 'ok' : reviewStatus === '未评审' ? 'bad' : 'warn';
   return '<div onclick="event.stopPropagation()">'
-    + '<select class="row-status-select ' + cls + '"' + statusControlAttrs(windowId, req.id, 'reviewStatus') + ' onchange="saveInlineStatusFromControl(this)">'
+    + '<select class="row-status-select ' + cls + '"' + statusControlAttrs(windowId, req.id, 'reviewStatus') + disabledAttr(canManageDemand(), '只有管理员和配置人员可以编辑评审状态') + ' onchange="saveInlineStatusFromControl(this)">'
     + '<option value="未评审"' + selectedAttr(reviewStatus, '未评审') + '>未评审</option>'
     + '<option value="已评审"' + selectedAttr(reviewStatus, '已评审') + '>已评审</option>'
     + '<option value="其他"' + selectedAttr(reviewStatus, '其他') + '>其他</option>'
     + '</select>'
-    + (reviewStatus === '其他' ? '<input class="row-review-note" type="text"' + statusControlAttrs(windowId, req.id, 'reviewStatusNote') + ' value="' + escHtml(req.reviewStatusNote || '') + '" placeholder="其他说明" onblur="saveInlineStatusFromControl(this)">' : '')
+    + (reviewStatus === '其他' ? '<input class="row-review-note" type="text"' + statusControlAttrs(windowId, req.id, 'reviewStatusNote') + disabledAttr(canManageDemand(), '只有管理员和配置人员可以编辑评审说明') + ' value="' + escHtml(req.reviewStatusNote || '') + '" placeholder="其他说明" onblur="saveInlineStatusFromControl(this)">' : '')
     + '</div>';
 }
 function renderDemandStatusSelect(windowId, req) {
   var status = req.status || 'normal';
   var cls = status === 'delayed' ? 'warn' : 'ok';
-  return '<select class="row-status-select ' + cls + ' row-demand-status"' + statusControlAttrs(windowId, req.id, 'status') + ' onchange="saveInlineStatusFromControl(this)" title="需求状态">'
+  return '<select class="row-status-select ' + cls + ' row-demand-status"' + statusControlAttrs(windowId, req.id, 'status') + disabledAttr(canManageDemand(), '只有管理员和配置人员可以调整需求状态') + ' onchange="saveInlineStatusFromControl(this)" title="需求状态">'
     + '<option value="normal"' + selectedAttr(status, 'normal') + '>正常</option>'
     + '<option value="delayed"' + selectedAttr(status, 'delayed') + '>延期</option>'
     + '</select>';
@@ -666,6 +1020,7 @@ async function persistInlineRequirement(windowId, reqId, keepOpen, message) {
   return true;
 }
 async function saveInlineStatusFromControl(el) {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以编辑需求状态')) return;
   var windowId = el.getAttribute('data-window-id');
   var reqId = el.getAttribute('data-req-id');
   var field = el.getAttribute('data-field');
@@ -714,6 +1069,7 @@ function syncInlineApiResourcePath(el) {
   if (resourceInput) resourceInput.value = buildApiResourcePath(el.value);
 }
 async function saveInlineCollectionField(el) {
+  if (!ensurePermission(canEditCollections(), '当前用户不能编辑清单内容')) return;
   var windowId = el.getAttribute('data-window-id');
   var reqId = el.getAttribute('data-req-id');
   var kind = el.getAttribute('data-kind');
@@ -737,6 +1093,7 @@ async function saveInlineCollectionField(el) {
   await persistInlineRequirement(windowId, reqId, true, '内容已保存');
 }
 async function addInlineCollectionItem(windowId, reqId, kind) {
+  if (!ensurePermission(canEditCollections(), '当前用户不能新增清单内容')) return;
   var found = findRequirementById(windowId, reqId);
   var collectionName = collectionNameForKind(kind);
   if (!found || !collectionName) return;
@@ -749,6 +1106,7 @@ async function addInlineCollectionItem(windowId, reqId, kind) {
   await persistInlineRequirement(windowId, reqId, true, '已添加');
 }
 async function deleteInlineCollectionItem(windowId, reqId, kind, index) {
+  if (!ensurePermission(canEditCollections(), '当前用户不能删除清单内容')) return;
   if (!confirm('确定删除这一项吗？')) return;
   var found = findRequirementById(windowId, reqId);
   var collectionName = collectionNameForKind(kind);
@@ -763,7 +1121,7 @@ function inlineCollectionAttrs(windowId, reqId, kind, index, field) {
 }
 function renderDetailSectionActions(windowId, req, kind, count, editing) {
   return '<span class="detail-section-actions">'
-    + '<button class="btn btn-xs" onclick="openCollectionModal(\'' + windowId + '\',\'' + req.id + '\',\'' + kind + '\')">编辑</button>'
+    + (canEditCollections() ? '<button class="btn btn-xs" onclick="openCollectionModal(\'' + windowId + '\',\'' + req.id + '\',\'' + kind + '\')">编辑</button>' : '')
     + '<span class="detail-count">' + count + '</span></span>';
 }
 function buildInlineModuleRepoOptions(module) {
@@ -909,6 +1267,7 @@ function buildCollectionEditorBody(req, kind) {
   return '';
 }
 function openCollectionModal(windowId, reqId, kind) {
+  if (!ensurePermission(canEditCollections(), '当前用户不能编辑代码模块、数据库清单或 API')) return;
   var found = findRequirementById(windowId, reqId);
   if (!found) return;
   editingCollectionWindowId = windowId;
@@ -982,6 +1341,7 @@ function collectApiEditorRows() {
   return apis;
 }
 async function saveCollectionModal() {
+  if (!ensurePermission(canEditCollections(), '当前用户不能保存清单内容')) return;
   var found = findRequirementById(editingCollectionWindowId, editingCollectionReqId);
   if (!found) return;
   if (editingCollectionKind === 'module') found.req.modules = collectModuleEditorRows();
@@ -1039,6 +1399,7 @@ function getBranchUrl(moduleName, branch, moduleFullName) {
 // ========== Sidebar ==========
 function renderSidebar() {
   var body = document.getElementById('sidebarBody');
+  var canManage = canManageDemand();
   var years = data.years.slice().sort(function(a, b) { return b - a; });
   if (years.length === 0) {
     body.innerHTML = '<div style="padding:20px;text-align:center;color:#7f8c8d;">暂无年份，点击 + 新建</div>';
@@ -1050,20 +1411,20 @@ function renderSidebar() {
     return '<div class="year-group">'
       + '<div class="year-group-header" onclick="toggleYear(' + y + ')">'
       + '<span class="year-label"><span class="arrow' + (isExpanded ? ' expanded' : '') + '">&#9654;</span>' + y + ' 年 <span style="font-size:11px;color:#7f8c8d">(' + windows.length + ')</span></span>'
-      + '<span class="year-actions">'
+      + (canManage ? '<span class="year-actions">'
       + '<button class="btn-sm" onclick="event.stopPropagation();editYear(' + y + ')">&#9998;</button>'
       + '<button class="btn-sm" onclick="event.stopPropagation();deleteYear(' + y + ')" style="color:#e74c3c">&#10005;</button>'
-      + '</span></div>'
+      + '</span>' : '') + '</div>'
       + '<div class="window-sublist' + (isExpanded ? ' open' : '') + '">'
       + windows.map(function(w) {
           return '<div class="window-sublist-item' + (selectedWindowId === w.id ? ' active' : '') + '" onclick="event.stopPropagation();selectWindow(\'' + w.id + '\')">'
             + '<span>&#128197; ' + w.date + '</span>'
-            + '<span class="win-actions">'
+            + (canManage ? '<span class="win-actions">'
             + '<button class="btn-xs" onclick="event.stopPropagation();openWindowModal(\'' + w.id + '\')">&#9998;</button>'
             + '<button class="btn-xs" onclick="event.stopPropagation();deleteWindow(\'' + w.id + '\')" style="color:#e74c3c">&#10005;</button>'
-            + '</span></div>';
+            + '</span>' : '') + '</div>';
         }).join('')
-      + '<div class="add-window-btn" onclick="event.stopPropagation();openWindowModalForYear(' + y + ')">+ 新建投产窗口</div>'
+      + (canManage ? '<div class="add-window-btn" onclick="event.stopPropagation();openWindowModalForYear(' + y + ')">+ 新建投产窗口</div>' : '')
       + '</div></div>';
   }).join('');
 }
@@ -1088,6 +1449,7 @@ function selectWindow(windowId) {
 
 // ========== Year CRUD ==========
 async function addYear() {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以新建年份')) return;
   var y = prompt('请输入新年份（如 2026）：');
   if (!y) return;
   var num = parseInt(y);
@@ -1101,6 +1463,7 @@ async function addYear() {
   showToast('年份已添加', 'success');
 }
 async function editYear(y) {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以编辑年份')) return;
   var ny = prompt('修改年份：', y);
   if (!ny || ny == y) return;
   var num = parseInt(ny);
@@ -1117,6 +1480,7 @@ async function editYear(y) {
   showToast('年份已更新', 'success');
 }
 async function deleteYear(y) {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以删除年份')) return;
   if (!confirm('确定删除 ' + y + ' 年及其所有投产窗口和需求吗？此操作不可恢复。')) return;
   data.years = data.years.filter(function(v) { return v !== y; });
   data.windows = data.windows.filter(function(w) { return w.year !== y; });
@@ -1132,6 +1496,7 @@ async function deleteYear(y) {
 // ========== Window CRUD ==========
 function openWindowModalForYear(y) { currentYear = y; openWindowModal(null); }
 function openWindowModal(editId) {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以编辑投产窗口')) return;
   editingWindowId = editId || null;
   document.getElementById('windowModal').classList.add('show');
   document.getElementById('windowModalTitle').textContent = editId ? '编辑投产窗口' : '新建投产窗口';
@@ -1144,6 +1509,7 @@ function openWindowModal(editId) {
 }
 function closeWindowModal() { document.getElementById('windowModal').classList.remove('show'); editingWindowId = null; }
 async function saveWindow() {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以保存投产窗口')) return;
   var date = document.getElementById('winDate').value.trim();
   if (!date) { showToast('请填写日期', 'error'); return; }
   if (!/^\d{8}$/.test(date)) { showToast('日期格式错误，请输入如 20260531', 'error'); return; }
@@ -1164,6 +1530,7 @@ async function saveWindow() {
   showToast('投产窗口已保存', 'success');
 }
 async function deleteWindow(id) {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以删除投产窗口')) return;
   if (!confirm('确定删除此投产窗口及其所有需求吗？此操作不可恢复。')) return;
   data.windows = data.windows.filter(function(w) { return w.id !== id; });
   if (selectedWindowId === id) selectedWindowId = data.windows.length > 0 ? data.windows[data.windows.length - 1].id : null;
@@ -1217,6 +1584,7 @@ function renderMain(keepSearchFocus) {
   }).length;
 
   var html = '';
+  var canManage = canManageDemand();
 
   // Dashboard stats
   html += '<div class="dashboard-stats">'
@@ -1236,7 +1604,7 @@ function renderMain(keepSearchFocus) {
       + delayedReqs.map(function(r) {
           return '<div class="delayed-card" onclick="viewRequirement(\'' + win.id + '\',\'' + r.id + '\')" title="查看需求详情">'
             + '<div class="delayed-info"><span class="delayed-name">' + escHtml(r.name) + '</span><span class="status-tag no">' + escHtml(r.number) + '</span></div>'
-            + '<button class="btn btn-xs" onclick="event.stopPropagation();restoreRequirement(\'' + win.id + '\',\'' + r.id + '\')">恢复</button></div>';
+            + (canManage ? '<button class="btn btn-xs" onclick="event.stopPropagation();restoreRequirement(\'' + win.id + '\',\'' + r.id + '\')">恢复</button>' : '') + '</div>';
         }).join('')
       + '</div></div></div>';
   }
@@ -1251,7 +1619,7 @@ function renderMain(keepSearchFocus) {
     + '<div class="toolbar-actions">'
     + (totalSqls > 0 ? '<button class="btn btn-sm" onclick="downloadAllWindowSql(\'' + win.id + '\')">&#128229; 下载全部SQL (' + totalSqls + ')</button>' : '')
     + (totalApis > 0 ? '<button class="btn btn-sm" onclick="downloadAllWindowApi(\'' + win.id + '\')">&#128229; 下载全部API (' + totalApis + ')</button>' : '')
-    + '<button class="btn btn-sm btn-primary" onclick="openReqModal(\'' + win.id + '\')">+ 新建需求</button>'
+    + (canManage ? '<button class="btn btn-sm btn-primary" onclick="openReqModal(\'' + win.id + '\')">+ 新建需求</button>' : '')
     + '</div></div></div>'
     + '<div class="card-body" style="padding:0">';
 
@@ -1280,9 +1648,10 @@ function renderMain(keepSearchFocus) {
         + '<td class="row-status-cell">' + renderReviewStatusCell(win.id, r) + '</td>'
         + '<td class="row-status-cell">' + renderBooleanStatusSelect(win.id, r, 'codeMerged', !!r.codeMerged, '已合并', '未合并') + '</td>'
         + '<td class="cell-actions" onclick="event.stopPropagation()">'
-        + renderDemandStatusSelect(win.id, r) + ' '
-        + '<button class="btn btn-xs" onclick="openReqModal(\'' + win.id + '\',\'' + r.id + '\')">编辑</button> '
-        + '<button class="btn btn-xs btn-danger" onclick="deleteRequirement(\'' + win.id + '\',\'' + r.id + '\')">删除</button>'
+        + (canManage ? renderDemandStatusSelect(win.id, r) + ' '
+          + '<button class="btn btn-xs" onclick="openReqModal(\'' + win.id + '\',\'' + r.id + '\')">编辑</button> '
+          + '<button class="btn btn-xs btn-danger" onclick="deleteRequirement(\'' + win.id + '\',\'' + r.id + '\')">删除</button>'
+          : '<span class="permission-muted">展开编辑清单</span>')
         + '</td></tr>';
 
       if (hasDetail) {
@@ -1396,6 +1765,7 @@ function viewRequirement(windowId, reqId) {
 
 // ========== Requirement Edit Modal ==========
 function openReqModal(windowId, editReqId) {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以编辑需求')) return;
   editingReqWindowId = windowId;
   editingReqId = editReqId || null;
   moduleCounter = 0; sqlCounter = 0; apiCounter = 0;
@@ -1630,6 +2000,7 @@ function collectReqForm() {
 }
 
 async function saveRequirement() {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以保存需求')) return;
   var req = collectReqForm();
   if (!req) return;
   var w = data.windows.find(function(v) { return v.id === editingReqWindowId; });
@@ -1654,6 +2025,10 @@ function closeReqModal() {
 }
 
 async function deleteRequirement(windowId, reqId) {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以删除需求')) return;
+  windowId = windowId || editingReqWindowId;
+  reqId = reqId || editingReqId;
+  if (!windowId || !reqId) return;
   if (!confirm('确定删除此需求吗？')) return;
   var w = data.windows.find(function(v) { return v.id === windowId; });
   if (!w) return;
@@ -1664,6 +2039,7 @@ async function deleteRequirement(windowId, reqId) {
 }
 
 async function restoreRequirement(windowId, reqId) {
+  if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以恢复延期需求')) return;
   var w = data.windows.find(function(v) { return v.id === windowId; });
   if (!w) return;
   var req = (w.requirements || []).find(function(r) { return r.id === reqId; });
@@ -1932,26 +2308,9 @@ function crc32(data) {
 }
 
 // ========== GitHub / GitLab Integration ==========
-var adminToken = sessionStorage.getItem('admin_token') || '';
-
 function toggleSettings() {
-  if (isServerMode && !adminToken) {
-    var pw = prompt('请输入管理员密码：');
-    if (!pw) return;
-    fetch(API_BASE + '/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pw }) })
-      .then(function(r) { return r.json(); })
-      .then(function(resp) {
-        if (resp.ok) {
-          adminToken = resp.token;
-          sessionStorage.setItem('admin_token', adminToken);
-          showSettings();
-        } else {
-          showToast('密码错误', 'error');
-        }
-      }).catch(function(e) { showToast('登录失败: ' + e.message, 'error'); });
-  } else {
-    showSettings();
-  }
+  if (!ensurePermission(canManageGitSettings(), '只有管理员可以配置 Git 仓库')) return;
+  showSettings();
 }
 function showSettings() {
   document.getElementById('settingsModal').classList.add('show');
@@ -2143,6 +2502,7 @@ function initUI() {
     modeBadge.textContent = '本地';
     modeBadge.className = 'mode-badge local';
   }
+  applyPermissionChrome();
   if (data.years.length > 0) {
     data.years.forEach(function(y) { expandedYears[y] = true; });
     currentYear = data.years[data.years.length - 1];
@@ -2153,8 +2513,11 @@ function initUI() {
   renderMain();
 }
 
-loadGitConfig(function() {
-  loadData();
+loadSession(function(ok) {
+  if (!ok && isServerMode) return;
+  loadGitConfig(function() {
+    loadData();
+  });
 });
 </script>
 </body>
