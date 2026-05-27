@@ -22,6 +22,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .sidebar-header .btn-icon { background: #2dd4bf; border: none; color: #0f172a; width: 32px; height: 32px; border-radius: 7px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); }
 .sidebar-header .btn-icon:hover { background: #5eead4; }
 .sidebar-body { flex: 1; overflow-y: auto; padding: 8px; }
+.sidebar-search { padding: 4px 2px 10px; margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar-search-box { position: relative; }
+.sidebar-search-input { width: 100%; height: 34px; border: 1px solid rgba(203,213,225,0.22); border-radius: 7px; background: rgba(15,23,42,0.42); color: #f8fafc; padding: 0 34px 0 10px; outline: none; font-size: 12px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.14); }
+.sidebar-search-input::placeholder { color: #94a3b8; }
+.sidebar-search-input:focus { border-color: #2dd4bf; box-shadow: 0 0 0 3px rgba(45,212,191,0.14); }
+.sidebar-search-clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: none; background: rgba(148,163,184,0.22); color: #e2e8f0; width: 22px; height: 22px; border-radius: 5px; cursor: pointer; line-height: 20px; }
+.sidebar-search-clear:hover { background: rgba(45,212,191,0.25); color: #fff; }
+.history-summary { padding: 8px 8px 6px; color: #94a3b8; font-size: 12px; }
+.history-window-item { border-left: 3px solid transparent; border-radius: 8px; padding: 9px 10px; margin-bottom: 7px; cursor: pointer; color: #dbeafe; background: rgba(255,255,255,0.035); transition: background 0.15s, border-color 0.15s; }
+.history-window-item:hover { background: rgba(255,255,255,0.08); border-left-color: #2dd4bf; }
+.history-window-item.active { background: rgba(37,99,235,0.22); border-left-color: #2dd4bf; }
+.history-window-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700; }
+.history-window-date { display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
+.history-window-year { color: #94a3b8; font-size: 11px; font-weight: 600; }
+.history-match-count { flex: 0 0 auto; border-radius: 999px; padding: 2px 7px; background: rgba(45,212,191,0.16); color: #99f6e4; font-size: 11px; font-weight: 800; }
+.history-match-list { display: flex; flex-direction: column; gap: 4px; margin-top: 7px; }
+.history-match-item { display: block; min-width: 0; color: #cbd5e1; font-size: 12px; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-match-item .status-tag { transform: scale(0.88); transform-origin: left center; margin-left: 4px; }
+.history-empty { padding: 24px 10px; color: #94a3b8; font-size: 12px; text-align: center; line-height: 1.6; }
 
 .year-group { border-radius: 8px; margin-bottom: 6px; overflow: hidden; }
 .year-group-header { padding: 10px 10px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; user-select: none; font-size: 15px; }
@@ -50,6 +69,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .main-header { padding: 16px 28px; background: rgba(255,255,255,0.92); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); }
 .main-header h1 { font-size: 18px; font-weight: 700; }
+.main-title-stack { display:flex; flex-direction:column; gap:5px; min-width:0; }
+.main-subtitle { font-size:12px; color:#64748b; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.window-people { display:inline-flex; align-items:center; gap:5px; padding:3px 8px; border-radius:999px; background:#f1f5f9; color:#334155; font-weight:700; }
 .main-header .header-actions { display: flex; gap: 8px; align-items: center; }
 .main-content { flex: 1; overflow-y: auto; padding: 24px 28px; }
 .user-chip { display:inline-flex; align-items:center; gap:6px; border:1px solid #dbe4ef; background:#f8fbff; border-radius:999px; padding:5px 10px; font-size:12px; color:#334155; white-space:nowrap; }
@@ -294,6 +316,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .modal-overlay.show { display: flex; }
 .modal { background: #fff; border-radius: 12px; width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(15,23,42,0.26); margin-bottom: 40px; }
 .modal-lg { max-width: 1000px; }
+.manual-window-textarea { min-height: 112px; line-height: 1.55; font-family: inherit; font-size: 13px; }
+.manual-window-note { font-size:12px; color:#64748b; margin-top:-4px; line-height:1.5; }
+.package-choice-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; }
+.package-choice { display:flex; align-items:center; gap:8px; border:1px solid var(--border); border-radius:7px; padding:10px 12px; background:#f8fafc; cursor:pointer; font-weight:700; color:#334155; }
+.package-choice:hover { border-color:var(--primary); background:#eff6ff; }
+.package-choice input { width:16px; height:16px; accent-color:var(--primary); }
 .modal-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #fff; z-index: 1; }
 .modal-header h2 { font-size: 18px; }
 .modal-body { padding: 24px; }
@@ -404,7 +432,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 
 <main class="main">
   <div class="main-header">
-    <h1 id="mainTitle">请选择投产窗口</h1>
+    <div class="main-title-stack">
+      <h1 id="mainTitle">请选择投产窗口</h1>
+      <div class="main-subtitle" id="mainSubtitle"></div>
+    </div>
     <div class="header-actions" id="headerActions"></div>
   </div>
   <div class="main-content" id="mainContent">
@@ -490,12 +521,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 
 <!-- Window Modal -->
 <div class="modal-overlay" id="windowModal">
-  <div class="modal">
+  <div class="modal modal-lg">
     <div class="modal-header">
       <h2 id="windowModalTitle">新建投产窗口</h2>
       <button class="btn btn-sm" onclick="closeWindowModal()">&#10005;</button>
     </div>
-    <div class="modal-body"><div class="form-group"><label>投产日期 *</label><input type="text" id="winDate" placeholder="格式：20260531" maxlength="8"></div></div>
+    <div class="modal-body">
+      <div class="form-group"><label>投产日期 *</label><input type="text" id="winDate" placeholder="格式：20260531" maxlength="8"></div>
+      <div class="form-row">
+        <div class="form-group"><label>投产人员 1</label><input type="text" id="winDeployPerson1" placeholder="生成手册前填写"></div>
+        <div class="form-group"><label>投产人员 2</label><input type="text" id="winDeployPerson2" placeholder="生成手册前填写"></div>
+      </div>
+      <div class="form-group">
+        <label>投产包清单</label>
+        <div class="package-choice-grid">
+          <label class="package-choice"><input type="checkbox" name="winManualPackages" value="core"> core</label>
+          <label class="package-choice"><input type="checkbox" name="winManualPackages" value="gl"> gl</label>
+          <label class="package-choice"><input type="checkbox" name="winManualPackages" value="cm"> cm</label>
+        </div>
+      </div>
+      <p class="manual-window-note">新建投产窗口只需要填写日期；生成投产手册前需要补齐两位投产人员，并至少选择一个投产包。</p>
+    </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeWindowModal()">取消</button>
       <button class="btn btn-primary" id="btnSaveWindow" onclick="saveWindow()">保存</button>
@@ -673,6 +719,10 @@ var suppressRepoChange = false;
 var currentSearchTerm = '';
 var searchCursorPos = 0;
 var searchWindowId = null;
+var historySearchTerm = '';
+var historySearchDraft = '';
+var historySearchCursorPos = 0;
+var historySearchComposing = false;
 var detailEditModes = {};
 var editingCollectionWindowId = null;
 var editingCollectionReqId = null;
@@ -696,6 +746,48 @@ function escHtml(s) {
   d.textContent = s;
   return d.innerHTML;
 }
+function getWindowDeployPeople(win) {
+  win = win || {};
+  var people = Array.isArray(win.deployPeople) ? win.deployPeople : [win.deployPerson1 || '', win.deployPerson2 || ''];
+  return [String(people[0] || '').trim(), String(people[1] || '').trim()];
+}
+var WINDOW_PACKAGE_OPTIONS = ['core', 'gl', 'cm'];
+function getWindowManualPackages(win) {
+  var selected = Array.isArray((win || {}).manualPackages) ? win.manualPackages : [];
+  var seen = {};
+  return selected.map(function(v) { return String(v || '').trim().toLowerCase(); }).filter(function(v) {
+    if (WINDOW_PACKAGE_OPTIONS.indexOf(v) === -1 || seen[v]) return false;
+    seen[v] = true;
+    return true;
+  });
+}
+function setWindowManualPackages(values) {
+  var selected = {};
+  (values || []).forEach(function(v) { selected[String(v || '').toLowerCase()] = true; });
+  document.querySelectorAll('input[name="winManualPackages"]').forEach(function(input) {
+    input.checked = Boolean(selected[input.value]);
+  });
+}
+function collectWindowManualPackages() {
+  return Array.prototype.slice.call(document.querySelectorAll('input[name="winManualPackages"]:checked')).map(function(input) { return input.value; });
+}
+function manualReadyError(win) {
+  var people = getWindowDeployPeople(win).filter(function(p) { return !!p; });
+  if (people.length < 2) return '生成投产手册前，请先编辑投产窗口，填写两名投产人员。';
+  if (people[0] === people[1]) return '生成投产手册前，请确认两名投产人员不能相同。';
+  if (getWindowManualPackages(win).length === 0) return '生成投产手册前，请先编辑投产窗口，选择投产包清单。';
+  return '';
+}
+function windowDeployPeopleText(win) {
+  var people = getWindowDeployPeople(win).filter(function(p) { return !!p; });
+  return people.length ? people.join('、') : '未配置';
+}
+function renderWindowSubtitle(win) {
+  var el = document.getElementById('mainSubtitle');
+  if (!el) return;
+  if (!win) { el.innerHTML = ''; return; }
+  el.innerHTML = '<span class="window-people">&#128100; 投产人员：' + escHtml(windowDeployPeopleText(win)) + '</span>';
+}
 function showLoginModal() {
   var modal = document.getElementById('loginModal');
   if (modal) modal.classList.add('show');
@@ -703,6 +795,7 @@ function showLoginModal() {
   var content = document.getElementById('mainContent');
   var sidebar = document.getElementById('sidebarBody');
   if (title) title.textContent = '请登录';
+  renderWindowSubtitle(null);
   if (content) content.innerHTML = '<div class="empty-state"><p>登录后查看投产需求清单</p></div>';
   if (sidebar && isServerMode) sidebar.innerHTML = '<div style="padding:20px;text-align:center;color:#7f8c8d;">请先登录</div>';
 }
@@ -1376,6 +1469,118 @@ function handleWindowSearch(el) {
   renderMain(true);
 }
 
+function normalizeSearchText(value) {
+  return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+function getRequirementSearchText(req) {
+  req = req || {};
+  var modulesText = (req.modules || []).map(function(m) {
+    return [m.name, m.full_name, m.branch].filter(Boolean).join(' ');
+  }).join(' ');
+  var apisText = (req.apis || []).map(function(a) {
+    return [a.apiName, a.description, a.resourcePath, a.appName].filter(Boolean).join(' ');
+  }).join(' ');
+  return normalizeSearchText([
+    req.name,
+    req.number,
+    req.resolver,
+    req.businessPerson,
+    req.reviewStatus,
+    req.reviewStatusNote,
+    modulesText,
+    apisText
+  ].filter(Boolean).join(' '));
+}
+function requirementMatchesHistorySearch(req, keyword) {
+  var term = normalizeSearchText(keyword);
+  if (!term) return false;
+  var target = getRequirementSearchText(req);
+  return term.split(' ').filter(Boolean).every(function(part) { return target.indexOf(part) !== -1; });
+}
+function getHistorySearchResults(keyword) {
+  var term = normalizeSearchText(keyword);
+  if (!term) return [];
+  return (data.windows || []).map(function(w) {
+    var matches = (w.requirements || []).filter(function(req) { return requirementMatchesHistorySearch(req, term); });
+    return { window: w, matches: matches };
+  }).filter(function(item) {
+    return item.matches.length > 0;
+  }).sort(function(a, b) {
+    if (a.window.year !== b.window.year) return b.window.year - a.window.year;
+    return String(b.window.date || '').localeCompare(String(a.window.date || ''));
+  });
+}
+function renderSidebarSearchBox() {
+  var hasTerm = historySearchDraft.trim() || historySearchTerm.trim();
+  return '<div class="sidebar-search"><div class="sidebar-search-box">'
+    + '<input class="sidebar-search-input" id="historySearch" value="' + escHtml(historySearchDraft) + '" placeholder="输入关键字后按回车搜索..." oninput="handleHistorySearchInput(this)" onkeydown="handleHistorySearchKeydown(event, this)" oncompositionstart="handleHistorySearchCompositionStart()" oncompositionend="handleHistorySearchCompositionEnd(this)" autocomplete="off">'
+    + (hasTerm ? '<button class="sidebar-search-clear" onclick="clearHistorySearch()" title="清空搜索">&#10005;</button>' : '')
+    + '</div></div>';
+}
+function restoreHistorySearchFocus(keepFocus) {
+  if (!keepFocus) return;
+  var el = document.getElementById('historySearch');
+  if (!el) return;
+  el.focus();
+  if (el.setSelectionRange) {
+    var pos = Math.min(historySearchCursorPos, el.value.length);
+    el.setSelectionRange(pos, pos);
+  }
+}
+function handleHistorySearchInput(el) {
+  historySearchDraft = el.value;
+  historySearchCursorPos = typeof el.selectionStart === 'number' ? el.selectionStart : historySearchDraft.length;
+}
+function runHistorySearch(el) {
+  historySearchDraft = el ? el.value : historySearchDraft;
+  historySearchTerm = historySearchDraft.trim();
+  historySearchCursorPos = el && typeof el.selectionStart === 'number' ? el.selectionStart : historySearchDraft.length;
+  renderSidebar(true);
+}
+function handleHistorySearchKeydown(event, el) {
+  if (event.key !== 'Enter' || historySearchComposing) return;
+  event.preventDefault();
+  runHistorySearch(el);
+}
+function handleHistorySearchCompositionStart() {
+  historySearchComposing = true;
+}
+function handleHistorySearchCompositionEnd(el) {
+  historySearchComposing = false;
+  historySearchDraft = el.value;
+  historySearchCursorPos = typeof el.selectionStart === 'number' ? el.selectionStart : historySearchDraft.length;
+}
+function clearHistorySearch() {
+  historySearchComposing = false;
+  historySearchTerm = '';
+  historySearchDraft = '';
+  historySearchCursorPos = 0;
+  renderSidebar(true);
+}
+function renderHistorySearchResults(keyword) {
+  var results = getHistorySearchResults(keyword);
+  var totalMatches = results.reduce(function(sum, item) { return sum + item.matches.length; }, 0);
+  if (!results.length) {
+    return '<div class="history-empty">没有找到相关需求<br>换个需求名称、编号、人员或分支试试</div>';
+  }
+  var pendingHint = historySearchDraft.trim() && historySearchDraft.trim() !== historySearchTerm ? '<br>输入已修改，按回车后更新结果' : '';
+  return '<div class="history-summary">找到 ' + results.length + ' 个投产窗口，' + totalMatches + ' 个相关需求' + pendingHint + '</div>'
+    + results.map(function(item) {
+        var w = item.window;
+        var matchList = item.matches.slice(0, 4).map(function(req) {
+          return '<span class="history-match-item">' + escHtml(req.name || '未命名需求')
+            + (req.number ? '<span class="status-tag">' + escHtml(req.number) + '</span>' : '') + '</span>';
+        }).join('');
+        if (item.matches.length > 4) {
+          matchList += '<span class="history-match-item">还有 ' + (item.matches.length - 4) + ' 个匹配需求...</span>';
+        }
+        return '<div class="history-window-item' + (selectedWindowId === w.id ? ' active' : '') + '" onclick="event.stopPropagation();selectWindow(\'' + w.id + '\')">'
+          + '<div class="history-window-top"><span class="history-window-date">&#128197; ' + escHtml(w.date || '') + '<span class="history-window-year">' + escHtml(w.year || '') + ' 年</span></span><span class="history-match-count">' + item.matches.length + '</span></div>'
+          + '<div class="history-match-list">' + matchList + '</div>'
+          + '</div>';
+      }).join('');
+}
+
 function getBranchUrl(moduleName, branch, moduleFullName) {
   if (!branch) return '';
   var provider = gitConfig.provider || 'github';
@@ -1397,15 +1602,22 @@ function getBranchUrl(moduleName, branch, moduleFullName) {
 }
 
 // ========== Sidebar ==========
-function renderSidebar() {
+function renderSidebar(keepHistorySearchFocus) {
   var body = document.getElementById('sidebarBody');
   var canManage = canManageDemand();
   var years = data.years.slice().sort(function(a, b) { return b - a; });
+  var searchBox = renderSidebarSearchBox();
   if (years.length === 0) {
-    body.innerHTML = '<div style="padding:20px;text-align:center;color:#7f8c8d;">暂无年份，点击 + 新建</div>';
+    body.innerHTML = searchBox + '<div style="padding:20px;text-align:center;color:#7f8c8d;">暂无年份，点击 + 新建</div>';
+    restoreHistorySearchFocus(keepHistorySearchFocus);
     return;
   }
-  body.innerHTML = years.map(function(y) {
+  if (historySearchTerm.trim()) {
+    body.innerHTML = searchBox + renderHistorySearchResults(historySearchTerm);
+    restoreHistorySearchFocus(keepHistorySearchFocus);
+    return;
+  }
+  body.innerHTML = searchBox + years.map(function(y) {
     var isExpanded = expandedYears[y];
     var windows = data.windows.filter(function(w) { return w.year === y; }).sort(function(a, b) { return a.date < b.date ? -1 : 1; });
     return '<div class="year-group">'
@@ -1427,6 +1639,7 @@ function renderSidebar() {
       + (canManage ? '<div class="add-window-btn" onclick="event.stopPropagation();openWindowModalForYear(' + y + ')">+ 新建投产窗口</div>' : '')
       + '</div></div>';
   }).join('');
+  restoreHistorySearchFocus(keepHistorySearchFocus);
 }
 
 function toggleYear(y) {
@@ -1502,23 +1715,45 @@ function openWindowModal(editId) {
   document.getElementById('windowModalTitle').textContent = editId ? '编辑投产窗口' : '新建投产窗口';
   if (editId) {
     var w = data.windows.find(function(v) { return v.id === editId; });
-    if (w) document.getElementById('winDate').value = w.date;
+    if (w) {
+      var people = getWindowDeployPeople(w);
+      document.getElementById('winDate').value = w.date;
+      document.getElementById('winDeployPerson1').value = people[0];
+      document.getElementById('winDeployPerson2').value = people[1];
+      setWindowManualPackages(getWindowManualPackages(w));
+    }
   } else {
     document.getElementById('winDate').value = '';
+    document.getElementById('winDeployPerson1').value = '';
+    document.getElementById('winDeployPerson2').value = '';
+    setWindowManualPackages([]);
   }
 }
 function closeWindowModal() { document.getElementById('windowModal').classList.remove('show'); editingWindowId = null; }
 async function saveWindow() {
   if (!ensurePermission(canManageDemand(), '只有管理员和配置人员可以保存投产窗口')) return;
   var date = document.getElementById('winDate').value.trim();
+  var person1 = document.getElementById('winDeployPerson1').value.trim();
+  var person2 = document.getElementById('winDeployPerson2').value.trim();
+  var manualPackages = collectWindowManualPackages();
   if (!date) { showToast('请填写日期', 'error'); return; }
   if (!/^\d{8}$/.test(date)) { showToast('日期格式错误，请输入如 20260531', 'error'); return; }
+  if (person1 && person2 && person1 === person2) { showToast('两位投产人员不能相同', 'error'); return; }
   if (editingWindowId) {
     var w = data.windows.find(function(v) { return v.id === editingWindowId; });
-    if (w) w.date = date;
+    if (w) {
+      w.date = date;
+      w.deployPeople = [person1, person2];
+      w.manualPackages = manualPackages;
+      delete w.manualModules;
+      delete w.manualPackageList;
+      delete w.manualDeploySteps;
+      delete w.deployPerson1;
+      delete w.deployPerson2;
+    }
   } else {
     if (!currentYear) { showToast('请先选择年份', 'error'); return; }
-    var newWin = { id: genId(), year: currentYear, date: date, requirements: [] };
+    var newWin = { id: genId(), year: currentYear, date: date, deployPeople: [person1, person2], manualPackages: manualPackages, requirements: [] };
     data.windows.push(newWin);
     expandedYears[currentYear] = true;
     if (!selectedWindowId) selectedWindowId = newWin.id;
@@ -1548,6 +1783,7 @@ function renderMain(keepSearchFocus) {
 
   if (!selectedWindowId) {
     title.textContent = currentYear ? currentYear + ' 年 - 请选择投产窗口' : '请选择投产窗口';
+    renderWindowSubtitle(null);
     content.innerHTML = '<div class="empty-state"><p>请从左侧选择一个投产窗口查看需求</p></div>';
     return;
   }
@@ -1556,6 +1792,7 @@ function renderMain(keepSearchFocus) {
   if (!win) { selectedWindowId = null; renderMain(); return; }
 
   title.textContent = win.year + ' 年 投产窗口：' + win.date;
+  renderWindowSubtitle(win);
 
   var searchValue = currentSearchTerm || '';
   var searchTerm = searchValue.trim().toLowerCase();
@@ -1617,6 +1854,8 @@ function renderMain(keepSearchFocus) {
     + '<input type="text" class="search-input" id="winSearch" placeholder="搜索需求..." oninput="handleWindowSearch(this)" value="' + escHtml(searchValue) + '" autocomplete="off">'
     + '</div>'
     + '<div class="toolbar-actions">'
+    + '<button class="btn btn-sm" onclick="downloadWindowRequirements(\'' + win.id + '\')">&#128196; 下载需求清单</button>'
+    + '<button class="btn btn-sm" onclick="downloadWindowManual(\'' + win.id + '\')">&#128196; 生成投产手册</button>'
     + (totalSqls > 0 ? '<button class="btn btn-sm" onclick="downloadAllWindowSql(\'' + win.id + '\')">&#128229; 下载全部SQL (' + totalSqls + ')</button>' : '')
     + (totalApis > 0 ? '<button class="btn btn-sm" onclick="downloadAllWindowApi(\'' + win.id + '\')">&#128229; 下载全部API (' + totalApis + ')</button>' : '')
     + (canManage ? '<button class="btn btn-sm btn-primary" onclick="openReqModal(\'' + win.id + '\')">+ 新建需求</button>' : '')
@@ -2136,6 +2375,68 @@ function viewApiOnly(windowId, reqId, apiIdx) {
     + '<div class="form-row"><div class="form-group"><label>报文转换</label><input value="' + escHtml(a.messageTransform || '禁用') + '" readonly></div></div>'
     + '<button class="btn btn-sm btn-primary" onclick="downloadApiTxt(\'' + windowId + '\',\'' + reqId + '\',' + apiIdx + ')">下载TXT</button>';
   document.getElementById('viewReqModal').classList.add('show');
+}
+
+async function downloadWindowManual(windowId) {
+  if (!isServerMode) { showToast('投产手册生成需要在共享服务模式下使用', 'error'); return; }
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  var readyError = manualReadyError(w);
+  if (readyError) {
+    alert(readyError);
+    showToast(readyError, 'error');
+    return;
+  }
+  try {
+    var resp = await fetch(API_BASE + '/api/manual?windowId=' + encodeURIComponent(windowId), { headers: authHeaders({}) });
+    if (!resp.ok) {
+      var body = await resp.json().catch(function() { return {}; });
+      throw new Error(body.message || ('HTTP ' + resp.status));
+    }
+    var blob = await resp.blob();
+    var cd = resp.headers.get('Content-Disposition') || '';
+    var match = cd.match(/filename\\*=UTF-8''([^;]+)/);
+    var filename = match ? decodeURIComponent(match[1]) : ('金华银行核心投产手册' + (w.date || '') + '.docx');
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('投产手册已生成', 'success');
+  } catch (e) {
+    showToast('生成投产手册失败：' + e.message, 'error');
+  }
+}
+
+async function downloadWindowRequirements(windowId) {
+  if (!isServerMode) { showToast('需求清单导出需要在共享服务模式下使用', 'error'); return; }
+  var w = data.windows.find(function(v) { return v.id === windowId; });
+  if (!w) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/requirements-export?windowId=' + encodeURIComponent(windowId), { headers: authHeaders({}) });
+    if (!resp.ok) {
+      var body = await resp.json().catch(function() { return {}; });
+      throw new Error(body.message || ('HTTP ' + resp.status));
+    }
+    var blob = await resp.blob();
+    var cd = resp.headers.get('Content-Disposition') || '';
+    var match = cd.match(/filename\\*=UTF-8''([^;]+)/);
+    var filename = match ? decodeURIComponent(match[1]) : ('投产需求清单' + (w.date || '') + '.xlsx');
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('需求清单已导出', 'success');
+  } catch (e) {
+    showToast('导出需求清单失败：' + e.message, 'error');
+  }
 }
 
 function downloadAllWindowApi(windowId) {
